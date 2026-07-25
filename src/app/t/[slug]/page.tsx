@@ -73,10 +73,10 @@ export default async function TenantBotPage({
       />
       <p className="mt-3 shrink-0 text-center text-xs text-text-muted sm:mt-4">
         Creado con{' '}
-        <a href="https://nectacore.com" className="text-accent hover:underline">
-          Abi · NectaCore
+        <a href="https://agavesysmx.com" className="text-accent hover:underline">
+          Abi
         </a>{' '}
-        🐝
+        de Agave Systems
       </p>
     </div>
   )

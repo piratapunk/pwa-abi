@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { getAuthUserId, getAppOrigin } from '@/lib/auth/server'
 import { getSql } from '@/lib/db'
+import { FEATURES } from '@/lib/flags'
 import { SLUG_RE } from '@/lib/factory/spec'
 import { clientIp, hasAllowedOrigin, rateLimit } from '@/lib/security'
 import {
@@ -16,6 +17,9 @@ const connectSchema = z
   .strict()
 
 export async function POST(req: NextRequest) {
+  if (!FEATURES.selfServe || !FEATURES.whatsappSelfConnect) {
+    return NextResponse.json({ error: 'not_found' }, { status: 404 })
+  }
   if (!hasAllowedOrigin(req)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }

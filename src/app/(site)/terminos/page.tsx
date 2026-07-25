@@ -10,7 +10,7 @@ export default function TerminosPage() {
       <h1 className="text-3xl font-bold">Términos de servicio</h1>
       <div className="mt-6 space-y-4 text-sm leading-relaxed text-text-muted">
         <p>
-          Al usar NectaCore aceptas usar el servicio para atender a tu negocio y
+          Al usar Abi aceptas usar el servicio para atender a tu negocio y
           a tus clientes, sin fines ilícitos ni envío de mensajes no solicitados.
         </p>
         <p>

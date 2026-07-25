@@ -23,27 +23,27 @@ const body = Inter({
   variable: '--font-body',
 })
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://nectacore.com'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://abi.agavesysmx.com'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'NectaCore — La colmena de asistentes para tu negocio',
-    template: '%s · NectaCore',
+    default: 'Abi — Arma el asistente de tu negocio',
+    template: '%s · Abi',
   },
   description:
     'Arma tu asistente con Abi en minutos: contesta WhatsApp y redes, agenda citas, hace campañas y deja cada logro en tu CRM. Gratis para armar y probar.',
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.svg',
-    apple: '/brand/nectacore-mark.svg',
+    apple: '/brand/abi-mark.svg',
   },
   openGraph: {
     type: 'website',
     locale: 'es_MX',
     url: siteUrl,
-    siteName: 'NectaCore',
-    title: 'NectaCore — La colmena de asistentes para tu negocio',
+    siteName: 'Abi · Agave Systems',
+    title: 'Abi — Arma el asistente de tu negocio',
     description:
       'Armas tu asistente en minutos y lo sueltas a trabajar: WhatsApp, redes, teléfono, campañas y CRM.',
   },

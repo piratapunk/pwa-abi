@@ -8,12 +8,13 @@ import { NectaWordmark } from '@/components/brand/NectaMark'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { useChat } from '@/components/chat/ChatContext'
+import { FEATURES } from '@/lib/flags'
 
 const links = [
   { href: '#como-funciona', label: 'Cómo funciona' },
   { href: '#capacidades', label: 'Capacidades' },
   { href: '#crm', label: 'Tu CRM' },
-  { href: '#planes', label: 'Planes' },
+  { href: '/servicios', label: 'Servicios' },
 ]
 
 export function Navbar() {
@@ -23,7 +24,7 @@ export function Navbar() {
   return (
     <header className="glass sticky top-0 z-40 border-b">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" aria-label="NectaCore — inicio">
+        <Link href="/" aria-label="Abi — inicio">
           <NectaWordmark />
         </Link>
 
@@ -41,9 +42,11 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>
-            <Link href="/entrar">Entrar</Link>
-          </Button>
+          {FEATURES.selfServe && (
+            <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>
+              <Link href="/entrar">Entrar</Link>
+            </Button>
+          )}
           <Button className="hidden sm:inline-flex" asChild>
             <Link href="/constructor">Arma tu asistente gratis</Link>
           </Button>
@@ -77,11 +80,13 @@ export function Navbar() {
                 Arma tu asistente gratis
               </Link>
             </Button>
-            <Button variant="secondary" className="w-full" asChild>
-              <Link href="/entrar" onClick={() => setOpen(false)}>
-                Entrar a mi cuenta
-              </Link>
-            </Button>
+            {FEATURES.selfServe && (
+              <Button variant="secondary" className="w-full" asChild>
+                <Link href="/entrar" onClick={() => setOpen(false)}>
+                  Entrar a mi cuenta
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       )}

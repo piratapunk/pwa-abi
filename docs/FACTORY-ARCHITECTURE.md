@@ -28,7 +28,7 @@ abi.provision_tenant(sesión, spec, master_key)     ← UNA transacción, SECURI
    ├─ KB inicial sanitizada (control chars fuera, 20k cap)
    └─ job `done` con resultado → reintentos devuelven lo mismo
    ▼
-https://<slug>.nectacore.com           [instantáneo: wildcard DNS + Traefik, sin pasos por tenant]
+https://<slug>.nectacore.com           [instantáneo: wildcard DNS + Cloudflare Tunnel, sin pasos por tenant]
    │  chat del cliente final
    ▼
 n8n `necta-tenant-chat`                [HMAC verificado en Postgres]
@@ -69,8 +69,9 @@ n8n `necta-tenant-chat`                [HMAC verificado en Postgres]
   guardada **solo cifrada** (`pgp_sym_encrypt`) con la `ABI_FACTORY_MASTER_KEY`,
   que vive únicamente en el entorno del servidor (Coolify env / vault) y se pasa
   por parámetro en la conexión interna — jamás se persiste en claro ni se responde.
-- Canales: TLS de borde (Cloudflare) + TLS origen (Traefik/LE); el tramo app↔DB va
-  por la red privada de docker del host (mismo perímetro que el resto de la plataforma).
+- Canales: TLS de borde (Cloudflare) + túnel cifrado `vps-prod` al origen (cero puertos
+  públicos, sin Traefik en el path — ADR 009); el tramo app↔DB va por la red privada de
+  docker del host (mismo perímetro que el resto de la plataforma).
 - Hallazgos tahona aplicados: validar SIEMPRE `exp/iss/aud/scope` si un día emitimos
   JWTs (hoy no emitimos ninguno hacia el cliente — sesiones opacas en sessionStorage);
   jamás confiar claims del cliente; defensa anti-inyección por capas; sanitización
@@ -98,11 +99,11 @@ entrada libre en ningún punto.
 
 ## 5. Subdominios estilo Netlify
 
-- **DNS**: un solo registro wildcard `*.nectacore.com` → VPS, **proxied** por Cloudflare
-  (Universal SSL cubre el wildcard en el edge; zona en modo Full).
-- **Traefik**: config dinámica `necta-tenant-wildcard.yaml` en el proxy de Coolify con
-  `HostRegexp` → servicio docker estable del app (`https-0-<uuid>@docker`, sobrevive
-  redeploys). Cero acciones de infra por tenant.
+- **DNS**: un solo registro wildcard `*.nectacore.com` como **CNAME proxied** al Cloudflare
+  Tunnel `vps-prod` (Universal SSL cubre el wildcard en el edge). Desde 2026-07-22 ya no hay
+  A-record al VPS ni Traefik en el path.
+- **Tunnel**: el hostname wildcard del tunnel `vps-prod` enruta al app
+  (`necta-core-web-vpsprod`, puerto local 3002). Cero acciones de infra por tenant.
 - **Next**: `src/proxy.ts` reescribe `Host: <slug>.nectacore.com` → `/t/<slug>`
   (layout aislado, sin navbar de NectaCore — el protagonista es el negocio del cliente,
   con solo el sello "creado con Abi · NectaCore").
@@ -117,10 +118,14 @@ entrada libre en ningún punto.
 
 ## 7. Env y secretos (nombres)
 
-Runtime (Coolify) / vault `secrets/necta.env`:
+Runtime (Coolify) — nombres `ABI_*`:
 `ABI_DATABASE_URL` · `ABI_CHAT_N8N_WEBHOOK_URL` · `ABI_FACTORY_INTAKE_N8N_WEBHOOK_URL` ·
 `ABI_TENANT_CHAT_N8N_WEBHOOK_URL` · `ABI_FACTORY_HMAC_SECRET` · `ABI_FACTORY_MASTER_KEY` ·
 `ABI_DB_PASSWORD` · `NEXT_PUBLIC_SITE_URL` · `SITE_URL`.
+
+Vault `secrets/projects/necta.env` — ⚠️ renombrado a `NECTA_*` el 2026-07-23 (era `ABI_*`);
+Coolify **no** se tocó y sigue con los nombres de arriba. Son tiers separados a propósito
+(`vps-core/docs/reference/secrets.md`) — no asumas que un rename en uno propaga al otro.
 
 ## 8. Pendientes conocidos
 
@@ -128,5 +133,6 @@ Runtime (Coolify) / vault `secrets/necta.env`:
 - Rotación programada de `factory_hmac` (la tabla ya registra `rotated_at`).
 - Embeddings/pgvector para KBs grandes (hoy: KB completa en contexto, cap 20k).
 - Panel del dueño (tweaks en vivo del bot) y el Constructor UI completo (`ROADMAP.md`).
-- Certificado de origen dedicado para subdominios (hoy: cert default de Traefik bajo
-  CF Full; subir a Full-strict con un origin cert de CF sería el siguiente candado).
+- ~~Certificado de origen dedicado para subdominios~~ — resuelto por la migración a
+  Cloudflare Tunnel (2026-07-22): el tramo edge→origen va por el túnel cifrado, sin puerto
+  de origen expuesto ni cert de Traefik en el path.

@@ -17,6 +17,22 @@ Durable Object) → demo-brain (n8n) → panel CRM → canal Zernio. Ver `resh-z
 
 ---
 
+## Plataforma (estándar v2026-07)
+
+- **Producción completa en `vps-prod`** (desde 2026-07-22): apps Coolify `necta-core-web-vpsprod`
+  (puerto 3002) y `necta-constructor-vpsprod` (3003).
+- **BD dedicada** `supabase-necta-prod` — API `https://db-necta-prod.piratapunk.com` (ya no el
+  Supabase compartido). Los schemas de tenants `t_*` + roles `t_*_app` viven ahí; la app entra
+  con el rol least-privilege `abi_app` vía pooler (user `abi_app.necta`, sin DELETE).
+- **Ingress por Cloudflare Tunnel `vps-prod`**: nectacore.com/www + wildcard `*.nectacore.com`
+  (tenants) y necta-constructor.piratapunk.com como CNAME proxied (sin Traefik ni puertos
+  públicos). Page Rules BIC-off en `nectacore.com/api/*` y `necta-constructor.piratapunk.com/*`.
+- **n8n**: los 3 webhooks usan la URL pública `https://n8n.piratapunk.com/webhook/…` (la interna
+  `http://n8n:5678` ya no aplica — n8n sigue en vps-ops).
+- **Stripe**: cuenta propia "NectaCore".
+- Canónico: `~/piratapunk/vps-core/docs/platform/operating-standard.md` · skills
+  `/promote-app-to-vps-prod` · `/provision-supabase-prod` · `/cf-tunnel-ingress` · `/stripe-webhook-verify`.
+
 ## Estado
 
 🟢 **Landing en producción** — [nectacore.com](https://nectacore.com): la web corporativa de
@@ -25,10 +41,10 @@ estrella, con el chat central conectado al brain (n8n `necta-web-chat` → Gemin
 en el schema `abi`. El Constructor (wizard) es la siguiente fase — ver `docs/ROADMAP.md`.
 
 **Stack actual**: Next.js 16 App Router + Tailwind v4 (tokens oklch, dark-first) + shadcn/ui,
-Docker standalone en Coolify (app `necta-core-web`). Rutas API: `/api/chat` (proxy con
+Docker standalone en Coolify (app `necta-core-web-vpsprod` en `vps-prod`). Rutas API: `/api/chat` (proxy con
 guardrails → webhook n8n) y `/api/lead` (rol `abi_app` → `abi.leads`). Env runtime:
 `ABI_DATABASE_URL`, `ABI_CHAT_N8N_WEBHOOK_URL`, `NEXT_PUBLIC_SITE_URL`, `SITE_URL`
-(vault: `secrets/necta.env`). Español-only por ahora; el espejo `/en` queda para después.
+(vault: `secrets/projects/necta.env`). Español-only por ahora; el espejo `/en` queda para después.
 
 ## Arquitectura (resumen)
 
@@ -64,11 +80,12 @@ una fila en `agave_demo.bots` + `bot_config` + KB + funnel. El resto (canal, bra
 
 ## Convenciones (heredadas del workspace)
 
-- **DB**: schema `abi` self-contained en el Supabase self-hosted (`contabo-core-01`). Nada en
-  `public`. Un schema por proyecto; sin FKs cruzadas.
+- **DB**: schema `abi` self-contained en la instancia Supabase **dedicada** `supabase-necta-prod`
+  (`vps-prod`, API `db-necta-prod.piratapunk.com`). Nada en `public`. Un schema por proyecto; sin
+  FKs cruzadas.
 - **Deploy**: Coolify. DNS de infra `*.piratapunk.com`; la marca pública Abi usa su **propio
   dominio** (nunca `agavesysmx.com` ni delata a Agave).
-- **Secrets**: vault `vps-contabo-core/secrets/*.env`, naming `ABI_<SCOPE>_<NAME>`.
+- **Secrets**: vault `vps-core/secrets/*.env`, naming `ABI_<SCOPE>_<NAME>`.
 - **Commits**: una línea, sin trailer.
 - **Marca**: Abi es un producto **independiente**. Nada en la UI pública debe revelar que el
   motor es el Agave Bot Suite / Zernio. Ver `brand/identity.md`.

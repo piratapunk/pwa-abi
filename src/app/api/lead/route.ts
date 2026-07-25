@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         ${body.business ?? null},
         ${body.message ?? null},
         ${body.sessionId ?? null},
-        'nectacore.com'
+        'abi.agavesysmx.com'
       )
     `
     return NextResponse.json({ ok: true })

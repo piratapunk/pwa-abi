@@ -1,133 +1,74 @@
-'use client'
+import Link from 'next/link'
+import { ArrowRight, Rocket, ListChecks, Handshake } from 'lucide-react'
 
-import { Check } from 'lucide-react'
-
-import { useChat } from '@/components/chat/ChatContext'
 import { Reveal } from '@/components/Reveal'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
 
-const plans = [
+const steps = [
   {
-    id: 'free',
-    name: 'Gratis',
-    tagline: 'Arma y prueba tu asistente',
-    price: 'Gratis',
-    priceNote: 'sin tarjeta, sin caducidad',
-    features: [
-      'El constructor completo, con Abi',
-      'Tu asistente funcionando en canal de prueba',
-      'Aprende de tu información (con límite)',
-      'Ajustes de tono, saludo y respuestas',
-    ],
-    cta: 'Empieza gratis',
-    message: 'Quiero armar mi asistente gratis',
-    highlight: false,
+    icon: Rocket,
+    title: 'Arma y pruébalo, gratis',
+    body: 'Sin tarjeta, sin caducidad. En minutos ves a tu asistente contestar con la información de tu negocio.',
   },
   {
-    id: 'premium',
-    name: 'Premium',
-    tagline: 'Suéltalo a zumbar de verdad',
-    price: 'Suscripción mensual',
-    priceNote: 'se cotiza al armar tu bot, sin sorpresas',
-    features: [
-      'Todo lo del plan gratis',
-      'Tu número de WhatsApp real',
-      'Redes, teléfono, campañas, reseñas y anuncios',
-      'Tu CRM con leads, citas y conversaciones',
-      'Más capacidad y personalización',
-    ],
-    cta: 'Habla con Abi',
-    message: 'Quiero saber más del plan Premium',
-    highlight: true,
+    icon: ListChecks,
+    title: 'Elige tu suite',
+    body: 'WhatsApp, redes, reseñas, campañas, teléfono, CRM… agrega todo lo que quieras que haga por ti.',
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
-    tagline: 'Lo hacemos contigo',
-    price: 'A la medida',
-    priceNote: 'junta, propuesta y acompañamiento',
-    features: [
-      'Todo lo de Premium',
-      'Integraciones a tus sistemas (CRM, ERP, pagos)',
-      'Flujos a la medida de tu operación',
-      'Onboarding guiado, llamadas y SLA',
-    ],
-    cta: 'Agenda una junta',
-    message: 'Quiero una junta para el plan Enterprise',
-    highlight: false,
+    icon: Handshake,
+    title: 'Lo armamos contigo',
+    body: 'Nos dejas tus datos y te contactamos para agendar el arranque. El precio se cotiza a tu medida, sin sorpresas.',
   },
 ]
 
 export function PricingSection() {
-  const { openChat } = useChat()
-
   return (
     <section id="planes" className="scroll-mt-16">
       <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <p className="t-eyebrow">Planes</p>
+          <p className="t-eyebrow">Cómo empezar</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">
-            Empiezas gratis. Creces cuando tú quieras.
+            Arma tu asistente gratis. Elige tu suite. Lo armamos contigo.
           </h2>
           <p className="mt-4 text-text-muted">
-            El plan gratis funciona de verdad — no es un demo que caduca. Pagas
-            cuando quieras conectar tu número real y abrir más canales.
+            Empiezas probando de verdad — no es un demo que caduca. Cuando ves lo
+            que puede hacer, eliges los servicios que quieres y nosotros nos
+            encargamos del arranque.
           </p>
         </Reveal>
 
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {plans.map((p, i) => (
-            <Reveal key={p.id} delay={i * 80} className="flex">
-            <Card
-              className={cn(
-                'flex w-full flex-col',
-                p.highlight && 'honey-glow relative border-accent/40'
-              )}
-            >
-              {p.highlight && (
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  El favorito de la colmena
-                </Badge>
-              )}
-              <CardHeader>
-                <CardTitle className="text-xl">{p.name}</CardTitle>
-                <CardDescription>{p.tagline}</CardDescription>
-                <p className="mt-3 font-display text-2xl font-bold text-text">{p.price}</p>
-                <p className="text-xs text-text-muted">{p.priceNote}</p>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <ul className="space-y-2.5 text-sm">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex gap-2 text-text-muted">
-                      <Check className="mt-0.5 size-4 shrink-0 text-accent" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  className="w-full"
-                  variant={p.highlight ? 'default' : 'secondary'}
-                  onClick={() => openChat(p.message)}
-                >
-                  {p.cta}
-                </Button>
-              </CardFooter>
-            </Card>
+          {steps.map((s, i) => (
+            <Reveal key={s.title} delay={i * 80} className="flex">
+              <Card className="flex w-full flex-col p-6">
+                <span className="flex size-11 items-center justify-center rounded-lg bg-accent-soft text-accent">
+                  <s.icon className="size-5" />
+                </span>
+                <CardContent className="mt-4 flex-1 p-0">
+                  <p className="text-xs font-semibold text-accent">Paso {i + 1}</p>
+                  <h3 className="mt-1 font-display text-lg font-semibold">
+                    {s.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-text-muted">{s.body}</p>
+                </CardContent>
+              </Card>
             </Reveal>
           ))}
         </div>
+
+        <Reveal className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button size="lg" asChild>
+            <Link href="/constructor">Arma tu asistente gratis</Link>
+          </Button>
+          <Button size="lg" variant="secondary" asChild>
+            <Link href="/servicios">
+              Ver todo lo que puede hacer
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </Reveal>
       </div>
     </section>
   )

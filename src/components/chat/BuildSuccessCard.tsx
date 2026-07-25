@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Copy, ExternalLink, Mail } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowRight, Check, Copy, ExternalLink, Mail } from 'lucide-react'
 
 import { AbiBee } from '@/components/brand/AbiBee'
 import { TenantChat } from '@/components/chat/TenantChat'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { FEATURES } from '@/lib/flags'
 
 /*
  * Cierre del Constructor: al construirse el bot, el chat se retira y entra
@@ -94,7 +96,23 @@ export function BuildSuccessCard({
 
       {/* claim — siempre a la vista (o el acceso directo si ya hay sesión) */}
       <div className="border-b bg-bg/50 px-6 py-4 lg:border-b-0 lg:border-t">
-        {claimed ? (
+        {!FEATURES.selfServe ? (
+          <div>
+            <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
+              <AbiBee className="text-lg" /> ¿Te late? Ahora arma tu suite
+            </p>
+            <p className="mb-3 text-sm text-text-muted">
+              Elige todo lo que quieres que haga por ti — WhatsApp, redes, reseñas,
+              campañas y más. Nosotros lo armamos contigo.
+            </p>
+            <Button className="w-full" asChild>
+              <Link href={`/servicios?s=${builderSessionId}`}>
+                Ver todo lo que puede hacer
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </div>
+        ) : claimed ? (
           <div className="text-center">
             <p className="text-sm text-text-muted">
               Ya quedó ligado a tu cuenta ✓

@@ -4,6 +4,13 @@
 > contratar uno dedicado, o quedarnos? Respuesta corta: **quedarnos — con el checklist de
 > abajo**. El cuello de botella era software y ya se corrigió; el fierro va sobrado.
 
+> **Actualización 2026-07-22:** medición de la era `contabo-core-01` (vps-ops). Hoy necta corre
+> completo en `vps-prod` (Cloudflare Tunnel, instancia Supabase dedicada `supabase-necta-prod`)
+> y n8n sigue en vps-ops: los 3 webhooks usan la URL pública
+> `https://n8n.piratapunk.com/webhook/…` — el fix de la URL interna `http://n8n:5678` de abajo
+> ya no aplica (hosts distintos). Estándar vigente:
+> `~/piratapunk/vps-core/docs/platform/operating-standard.md`.
+
 ## 1. Qué se midió
 
 **Base**: Contabo `contabo-core-01`, 6 vCPU / 12 GB RAM. En reposo: load ~2.2/6,

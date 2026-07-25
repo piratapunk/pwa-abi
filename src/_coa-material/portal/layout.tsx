@@ -9,6 +9,7 @@ import { UserMenu } from '@/components/panel/UserMenu'
 import { Badge } from '@/components/ui/badge'
 import { getAuthUser } from '@/lib/auth/server'
 import { getSql } from '@/lib/db'
+import { FEATURES } from '@/lib/flags'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,6 +23,8 @@ export default async function MisBotsLayout({
 }: {
   children: React.ReactNode
 }) {
+  if (!FEATURES.selfServe) redirect('/')
+
   const user = await getAuthUser()
   if (!user) redirect('/entrar')
 
