@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
   if (!sql) return NextResponse.json({ error: 'unavailable' }, { status: 503 })
 
   const plan = await sql`
-    select t.plan from necta.tenants t
-    where t.id = necta.user_owns_tenant(${userId}::uuid, ${body.slug})
+    select t.plan from abi.tenants t
+    where t.id = abi.user_owns_tenant(${userId}::uuid, ${body.slug})
   `
   if (!plan[0]) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   if (plan[0].plan === 'free') {
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const rows = await sql`
-      select necta.tenant_owner_reply(
+      select abi.tenant_owner_reply(
         ${userId}::uuid, ${body.slug}, ${body.session}::uuid, ${body.message}
       ) as r
     `

@@ -12,7 +12,7 @@ import {
 
 /*
  * Chat del bot de un tenant. El brain (n8n) carga la config y la KB del
- * schema PROPIO del tenant vía necta.tenant_chat_context — el mensaje del
+ * schema PROPIO del tenant vía abi.tenant_chat_context — el mensaje del
  * cliente final viaja como dato por canal firmado.
  */
 

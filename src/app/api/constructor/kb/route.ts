@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
   if (body.action === 'reject') {
     const rows = await sql`
-      update necta.kb_sources
+      update abi.kb_sources
       set status = 'rejected', reject_reason = 'descartado', updated_at = now()
       where id = ${body.id}::uuid
         and builder_session_id = ${body.sessionId}::uuid
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   let maxChars = 20000
   try {
     const lim = await sql`
-      select extracted_max_chars from necta.plan_limits where plan = 'free'
+      select extracted_max_chars from abi.plan_limits where plan = 'free'
     `
     if (lim[0]) maxChars = lim[0].extracted_max_chars as number
   } catch {}
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'sin_texto' }, { status: 422 })
     }
     const rows = await sql`
-      update necta.kb_sources
+      update abi.kb_sources
       set status = 'approved', extracted_text = ${text},
           extracted_chars = ${text.length}, updated_at = now()
       where id = ${body.id}::uuid
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
   }
 
   const rows = await sql`
-    update necta.kb_sources
+    update abi.kb_sources
     set status = 'approved', updated_at = now()
     where id = ${body.id}::uuid
       and builder_session_id = ${body.sessionId}::uuid

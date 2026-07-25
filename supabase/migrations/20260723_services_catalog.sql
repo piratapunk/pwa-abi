@@ -3,7 +3,7 @@
 -- Todo dentro del esquema `necta` (convención del proyecto: sin FKs cruzadas).
 
 -- 1) Catálogo de servicios (editable sin deploy).
-create table if not exists necta.services (
+create table if not exists abi.services (
   id          uuid primary key default gen_random_uuid(),
   slug        text not null unique,
   category    text not null,
@@ -19,10 +19,10 @@ create table if not exists necta.services (
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
-create index if not exists services_category_idx on necta.services (category, sort);
+create index if not exists services_category_idx on abi.services (category, sort);
 
 -- 2) Pedido / cotización — anónimo primero, ligado al bot armado y (si aplica) al tenant.
-create table if not exists necta.service_requests (
+create table if not exists abi.service_requests (
   id                 uuid primary key default gen_random_uuid(),
   builder_session_id uuid,
   tenant_id          uuid,
@@ -37,28 +37,28 @@ create table if not exists necta.service_requests (
   source             text not null default 'nectacore.com',
   created_at         timestamptz not null default now()
 );
-create index if not exists service_requests_status_idx on necta.service_requests (status, created_at desc);
-create index if not exists service_requests_session_idx on necta.service_requests (builder_session_id);
+create index if not exists service_requests_status_idx on abi.service_requests (status, created_at desc);
+create index if not exists service_requests_session_idx on abi.service_requests (builder_session_id);
 
 -- 3) Renglones del pedido. Snapshot de slug/name para sobrevivir cambios del catálogo.
-create table if not exists necta.service_request_items (
+create table if not exists abi.service_request_items (
   id           uuid primary key default gen_random_uuid(),
-  request_id   uuid not null references necta.service_requests (id) on delete cascade,
-  service_id   uuid references necta.services (id),
+  request_id   uuid not null references abi.service_requests (id) on delete cascade,
+  service_id   uuid references abi.services (id),
   service_slug text not null,
   service_name text not null,
   note         text,
   created_at   timestamptz not null default now()
 );
-create index if not exists service_request_items_request_idx on necta.service_request_items (request_id);
+create index if not exists service_request_items_request_idx on abi.service_request_items (request_id);
 
 -- Grants para el rol least-privilege de la app (SELECT/INSERT/UPDATE, sin DELETE).
-grant select on necta.services to abi_app;
-grant select, insert on necta.service_requests to abi_app;
-grant select, insert on necta.service_request_items to abi_app;
+grant select on abi.services to abi_app;
+grant select, insert on abi.service_requests to abi_app;
+grant select, insert on abi.service_request_items to abi_app;
 
 -- Seed del catálogo (copy de marca: sin nombrar el motor; precios no fijos).
-insert into necta.services (slug, category, name, tagline, description, icon, price_note, is_featured, sort) values
+insert into abi.services (slug, category, name, tagline, description, icon, price_note, is_featured, sort) values
   ('asistente-chat',    'Asistente',      'Asistente que contesta 24/7',        'El corazón de todo',                'Atiende a tus clientes al instante, todo el día, con la información de tu negocio.', 'MessageCircle', 'Incluido',          true,  10),
   ('crm',               'Asistente',      'CRM que se llena solo',              'Cada conversación, un contacto',    'Contactos, conversaciones, embudo y citas — se llenan solos mientras tu asistente atiende.', 'Users', 'Incluido',          true,  20),
   ('whatsapp-numero',   'WhatsApp',       'Tu WhatsApp conectado',             'Tu número, tu marca',               'Tu asistente contesta en tu propio número de WhatsApp, con tu nombre.', 'Phone', 'Desde $2/mes',      true,  30),

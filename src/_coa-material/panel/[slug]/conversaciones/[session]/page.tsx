@@ -39,12 +39,12 @@ export default async function PanelConversacion({
   const userId = await getAuthUserId()
   const sql = getSql()
 
-  const overviewRows = await sql!`select necta.tenant_overview(${userId}::uuid, ${slug}) as o`
+  const overviewRows = await sql!`select abi.tenant_overview(${userId}::uuid, ${slug}) as o`
   const o = overviewRows[0]?.o as { ok: boolean; plan: string }
   if (!o?.ok) notFound()
 
   const rows = await sql!`
-    select necta.tenant_conversation_messages(${userId}::uuid, ${slug}, ${session}::uuid) as r
+    select abi.tenant_conversation_messages(${userId}::uuid, ${slug}, ${session}::uuid) as r
   `
   const r = rows[0]?.r as {
     ok: boolean

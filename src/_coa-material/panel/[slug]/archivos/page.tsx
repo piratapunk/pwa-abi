@@ -16,7 +16,7 @@ export default async function PanelArchivos({
   const { slug } = await params
   const userId = await getAuthUserId()
   const sql = getSql()
-  const rows = await sql!`select necta.tenant_overview(${userId}::uuid, ${slug}) as o`
+  const rows = await sql!`select abi.tenant_overview(${userId}::uuid, ${slug}) as o`
   const o = rows[0]?.o as {
     ok: boolean
     plan: string

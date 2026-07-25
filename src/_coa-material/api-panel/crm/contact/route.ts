@@ -30,8 +30,8 @@ async function guard(req: NextRequest, slug: string, userId: string) {
   const sql = getSql()
   if (!sql) return { error: NextResponse.json({ error: 'unavailable' }, { status: 503 }) }
   const rows = await sql`
-    select t.plan from necta.tenants t
-    where t.id = necta.user_owns_tenant(${userId}::uuid, ${slug})
+    select t.plan from abi.tenants t
+    where t.id = abi.user_owns_tenant(${userId}::uuid, ${slug})
   `
   if (!rows[0]) return { error: NextResponse.json({ error: 'forbidden' }, { status: 403 }) }
   if (rows[0].plan === 'free') {
@@ -67,12 +67,12 @@ async function handle(req: NextRequest, method: 'create' | 'update') {
     const rows =
       method === 'create'
         ? await g.sql`
-            select necta.tenant_contact_create(
+            select abi.tenant_contact_create(
               ${userId}::uuid, ${body.slug}, ${g.sql.json(body.patch)}
             ) as r
           `
         : await g.sql`
-            select necta.tenant_contact_update(
+            select abi.tenant_contact_update(
               ${userId}::uuid, ${body.slug}, ${body.id!}::uuid, ${g.sql.json(body.patch)}
             ) as r
           `

@@ -29,10 +29,10 @@ export default async function PortalInicio() {
   const stats: Record<string, Overview> = {}
   if (sql) {
     try {
-      const rows = await sql`select necta.user_tenants(${user.id}::uuid) as t`
+      const rows = await sql`select abi.user_tenants(${user.id}::uuid) as t`
       tenants = (rows[0]?.t as TenantRow[]) ?? []
       for (const t of tenants.slice(0, 6)) {
-        const o = await sql`select necta.tenant_overview(${user.id}::uuid, ${t.slug}) as o`
+        const o = await sql`select abi.tenant_overview(${user.id}::uuid, ${t.slug}) as o`
         if ((o[0]?.o as Overview)?.ok) stats[t.slug] = o[0].o as Overview
       }
     } catch {}

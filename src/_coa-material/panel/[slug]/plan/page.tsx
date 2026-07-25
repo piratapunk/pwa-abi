@@ -17,7 +17,7 @@ export default async function PanelPlan({
   const { slug } = await params
   const userId = await getAuthUserId()
   const sql = getSql()
-  const rows = await sql!`select necta.tenant_overview(${userId}::uuid, ${slug}) as o`
+  const rows = await sql!`select abi.tenant_overview(${userId}::uuid, ${slug}) as o`
   const o = rows[0]?.o as {
     ok: boolean
     plan: string
@@ -26,7 +26,7 @@ export default async function PanelPlan({
   if (!o?.ok) return null
 
   const subRows = await sql!`
-    select subscription_status from necta.tenants where slug = ${slug}
+    select subscription_status from abi.tenants where slug = ${slug}
   `
   const subStatus = (subRows[0]?.subscription_status as string) ?? 'none'
   const monthly = process.env.ABI_PREMIUM_MONTHLY_MXN ?? '999'
@@ -34,7 +34,7 @@ export default async function PanelPlan({
 
   const limitRows = await sql!`
     select plan, msgs_day, files_max, file_max_mb, rag_enabled
-    from necta.plan_limits order by case plan when 'free' then 1 when 'premium' then 2 else 3 end
+    from abi.plan_limits order by case plan when 'free' then 1 when 'premium' then 2 else 3 end
   `
 
   return (

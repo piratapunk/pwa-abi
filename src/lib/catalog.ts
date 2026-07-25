@@ -1,7 +1,7 @@
 import { getSql } from '@/lib/db'
 
 /*
- * Catálogo de servicios. Fuente de verdad: necta.services (editable sin deploy).
+ * Catálogo de servicios. Fuente de verdad: abi.services (editable sin deploy).
  * Si la BD no está disponible o la tabla aún no existe (pre-migración), cae al
  * catálogo estático de abajo — espejo del seed de la migración — para que
  * /servicios funcione siempre. Copy de marca: nunca nombra el motor.
@@ -78,7 +78,7 @@ export async function getCatalog(): Promise<CatalogGroup[]> {
         }[]
       >`
         select slug, category, name, tagline, description, icon, price_note, is_featured
-        from necta.services
+        from abi.services
         where active = true
         order by sort asc
       `

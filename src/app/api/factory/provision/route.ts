@@ -9,7 +9,7 @@ import { HUMAN_COOKIE, isHumanCookieValid, verifyTurnstile } from '@/lib/turnsti
 
 /*
  * Materializa un bot_spec: schema propio + rol propio + subdominio, vía el
- * contrato necta.provision_tenant (SECURITY DEFINER, idempotente por sesión).
+ * contrato abi.provision_tenant (SECURITY DEFINER, idempotente por sesión).
  * La master key solo existe en el entorno del servidor; jamás sale en la
  * respuesta ni se persiste en claro.
  */
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const rows = await sql`
-      select necta.provision_tenant(
+      select abi.provision_tenant(
         ${body.builderSessionId}::uuid,
         ${sql.json(body.spec)},
         ${masterKey}
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     try {
       const userId = await getAuthUserId()
       if (userId) {
-        await sql`select necta.claim_tenant(${body.builderSessionId}::uuid, ${userId}::uuid)`
+        await sql`select abi.claim_tenant(${body.builderSessionId}::uuid, ${userId}::uuid)`
         claimed = true
       }
     } catch {}
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     })
   } catch (err) {
     try {
-      await sql`select necta.factory_log_failure(
+      await sql`select abi.factory_log_failure(
         ${body.builderSessionId}::uuid,
         ${err instanceof Error ? err.message : 'error desconocido'}
       )`

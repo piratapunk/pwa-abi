@@ -27,11 +27,11 @@ export default async function PanelLayout({
 
   const sql = getSql()
   if (!sql) notFound()
-  const rows = await sql`select necta.user_owns_tenant(${userId}::uuid, ${slug}) as id`
+  const rows = await sql`select abi.user_owns_tenant(${userId}::uuid, ${slug}) as id`
   if (!rows[0]?.id) notFound()
 
   const tenantRows = await sql`
-    select name, plan from necta.tenants where slug = ${slug}
+    select name, plan from abi.tenants where slug = ${slug}
   `
   const tenant = tenantRows[0] as { name: string; plan: string }
 

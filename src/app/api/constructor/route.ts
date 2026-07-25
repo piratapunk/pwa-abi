@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
         const userId = await getAuthUserId()
         const sql = getSql()
         if (userId && sql) {
-          await sql`select necta.claim_tenant(${body.builderSessionId}::uuid, ${userId}::uuid)`
+          await sql`select abi.claim_tenant(${body.builderSessionId}::uuid, ${userId}::uuid)`
           claimed = true
         }
       } catch {}

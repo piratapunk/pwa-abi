@@ -26,7 +26,7 @@ export default async function PanelEmbudo({
   const userId = await getAuthUserId()
   const sql = getSql()
 
-  const overviewRows = await sql!`select necta.tenant_overview(${userId}::uuid, ${slug}) as o`
+  const overviewRows = await sql!`select abi.tenant_overview(${userId}::uuid, ${slug}) as o`
   const o = overviewRows[0]?.o as { ok: boolean; plan: string }
   if (!o?.ok) return null
 
@@ -40,7 +40,7 @@ export default async function PanelEmbudo({
     )
   }
 
-  const rows = await sql!`select necta.tenant_pipeline(${userId}::uuid, ${slug}) as r`
+  const rows = await sql!`select abi.tenant_pipeline(${userId}::uuid, ${slug}) as r`
   const r = rows[0]?.r as {
     ok: boolean
     pipeline: Record<string, { count: number; contacts: PipelineContact[] }>

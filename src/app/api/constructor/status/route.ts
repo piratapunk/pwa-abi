@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   try {
     const rows = await sql`
       select result->>'subdomain' as subdomain
-      from necta.factory_jobs
+      from abi.factory_jobs
       where builder_session_id = ${bs}::uuid and kind = 'provision' and status = 'done'
     `
     const subdomain = rows[0]?.subdomain as string | undefined

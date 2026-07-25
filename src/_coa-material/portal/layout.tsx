@@ -32,7 +32,7 @@ export default async function MisBotsLayout({
   let tenants: TenantRow[] = []
   if (sql) {
     try {
-      const rows = await sql`select necta.user_tenants(${user.id}::uuid) as t`
+      const rows = await sql`select abi.user_tenants(${user.id}::uuid) as t`
       tenants = (rows[0]?.t as TenantRow[]) ?? []
     } catch {}
   }

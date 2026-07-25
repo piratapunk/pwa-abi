@@ -23,7 +23,7 @@ export default async function PanelClientes({
   const userId = await getAuthUserId()
   const sql = getSql()
 
-  const overviewRows = await sql!`select necta.tenant_overview(${userId}::uuid, ${slug}) as o`
+  const overviewRows = await sql!`select abi.tenant_overview(${userId}::uuid, ${slug}) as o`
   const o = overviewRows[0]?.o as { ok: boolean; plan: string }
   if (!o?.ok) return null
 
@@ -38,7 +38,7 @@ export default async function PanelClientes({
   }
 
   const rows = await sql!`
-    select necta.tenant_contacts_list(
+    select abi.tenant_contacts_list(
       ${userId}::uuid, ${slug},
       ${q || null}, ${etapa || null}, ${tag || null}, 200
     ) as r

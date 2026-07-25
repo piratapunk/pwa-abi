@@ -8,7 +8,7 @@ import { HUMAN_COOKIE, isHumanCookieValid } from '@/lib/turnstile'
 
 /*
  * Ingesta de documentos del Constructor (SECURITY.md): el archivo entra a
- * CUARENTENA (necta.kb_sources), se extrae SOLO texto en el servicio del
+ * CUARENTENA (abi.kb_sources), se extrae SOLO texto en el servicio del
  * Constructor, se sanitiza aquí, y nada se materializa hasta que el dueño
  * revisa y aprueba (y provision_tenant solo lee status='approved').
  */
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   try {
     const rows = await sql`
       select files_max, file_max_mb, extracted_max_chars
-      from necta.plan_limits where plan = 'free'
+      from abi.plan_limits where plan = 'free'
     `
     if (rows[0]) limits = rows[0] as PlanLimits
   } catch {}
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     select
       count(*) filter (where status = 'approved')::int as approved,
       count(*) filter (where status = 'sanitized')::int as pending
-    from necta.kb_sources where builder_session_id = ${sessionId}::uuid
+    from abi.kb_sources where builder_session_id = ${sessionId}::uuid
   `
   if ((counts[0]?.approved ?? 0) >= limits.files_max) {
     return NextResponse.json(
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
   }
   if ((counts[0]?.pending ?? 0) > 0) {
     await sql`
-      update necta.kb_sources
+      update abi.kb_sources
       set status = 'rejected', reject_reason = 'reemplazado', updated_at = now()
       where builder_session_id = ${sessionId}::uuid and status = 'sanitized'
     `
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
   const { text, droppedLines } = sanitizeExtracted(rawText, limits.extracted_max_chars)
   if (text.length < 20) {
     await sql`
-      insert into necta.kb_sources
+      insert into abi.kb_sources
         (builder_session_id, filename, mime, bytes, status, reject_reason, extracted_chars)
       values
         (${sessionId}::uuid, ${filename}, ${file.type || 'application/octet-stream'},
@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
   }
 
   const rows = await sql`
-    insert into necta.kb_sources
+    insert into abi.kb_sources
       (builder_session_id, filename, mime, bytes, status, extracted_text,
        extracted_chars, injection_lines_dropped)
     values

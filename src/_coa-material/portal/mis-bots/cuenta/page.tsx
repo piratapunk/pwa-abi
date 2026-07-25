@@ -57,9 +57,9 @@ export default async function CuentaPage({
   let limits: Record<string, PlanLimits> = {}
   if (sql) {
     try {
-      const rows = await sql`select necta.user_tenants(${user.id}::uuid) as t`
+      const rows = await sql`select abi.user_tenants(${user.id}::uuid) as t`
       tenants = (rows[0]?.t as TenantRow[]) ?? []
-      const pl = await sql`select plan, msgs_day, files_max, rag_enabled from necta.plan_limits`
+      const pl = await sql`select plan, msgs_day, files_max, rag_enabled from abi.plan_limits`
       limits = Object.fromEntries((pl as unknown as PlanLimits[]).map((p) => [p.plan, p]))
     } catch {}
   }

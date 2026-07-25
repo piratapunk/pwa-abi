@@ -53,7 +53,7 @@ export default async function PanelAjustes({
   const user = await getAuthUser()
   if (!user) redirect('/entrar')
   const sql = getSql()
-  const rows = await sql!`select necta.tenant_overview(${user.id}::uuid, ${slug}) as o`
+  const rows = await sql!`select abi.tenant_overview(${user.id}::uuid, ${slug}) as o`
   const o = rows[0]?.o as Overview
   if (!o?.ok) return null
 

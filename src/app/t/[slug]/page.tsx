@@ -27,7 +27,7 @@ async function loadTenant(slug: string): Promise<TenantContext | null> {
   const sql = getSql()
   if (!sql) return null
   try {
-    const rows = await sql`select necta.tenant_chat_context(${slug}) as ctx`
+    const rows = await sql`select abi.tenant_chat_context(${slug}) as ctx`
     const ctx = rows[0]?.ctx as TenantContext
     return ctx?.ok ? ctx : null
   } catch {

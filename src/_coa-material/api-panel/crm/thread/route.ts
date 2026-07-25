@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const rows = await sql`
-      select necta.tenant_conversation_messages(
+      select abi.tenant_conversation_messages(
         ${userId}::uuid, ${slug}, ${session}::uuid
       ) as r
     `

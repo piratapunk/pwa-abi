@@ -17,7 +17,7 @@ export default async function PanelConversaciones({
   const userId = await getAuthUserId()
   const sql = getSql()
   const rows = await sql!`
-    select necta.tenant_conversations_list(${userId}::uuid, ${slug}, 50) as r
+    select abi.tenant_conversations_list(${userId}::uuid, ${slug}, 50) as r
   `
   const r = rows[0]?.r as { ok: boolean; conversations: CrmConversation[] }
   const convs = r?.ok ? r.conversations : []

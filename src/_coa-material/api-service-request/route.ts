@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
   try {
     await sql.begin(async (sql) => {
       const [lead] = await sql`
-        insert into necta.leads (name, email, phone, business, message, session_id, source)
+        insert into abi.leads (name, email, phone, business, message, session_id, source)
         values (
           ${body.name}, ${body.email ?? null}, ${body.phone ?? null},
           ${body.business ?? null}, ${body.notes ?? null},
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         returning id
       `
       const [reqRow] = await sql`
-        insert into necta.service_requests
+        insert into abi.service_requests
           (builder_session_id, lead_id, contact_name, contact_email, contact_phone,
            business, vertical, notes, source)
         values (
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
         service_name: it.service_name,
       }))
       await sql`
-        insert into necta.service_request_items ${sql(
+        insert into abi.service_request_items ${sql(
           rows,
           'request_id',
           'service_slug',
