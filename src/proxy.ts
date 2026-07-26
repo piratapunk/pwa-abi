@@ -36,6 +36,18 @@ export function proxy(request: NextRequest) {
   }
 
   const host = (request.headers.get('host') ?? '').split(':')[0].toLowerCase()
+
+  // El retiro de nectacore.com: 301 permanente al dominio nuevo. La marca se
+  // apaga redirigiendo, no conviviendo — el DNS viejo se elimina después, pero
+  // mientras exista, cada visita ya aterriza en Agave.
+  if (host === 'nectacore.com' || host === 'www.nectacore.com') {
+    return NextResponse.redirect(`https://abi.agavesysmx.com${pathname}`, 301)
+  }
+  const viejo = /^([a-z0-9-]+)\.nectacore\.com$/.exec(host)
+  if (viejo && viejo[1] !== 'www') {
+    return NextResponse.redirect(`https://${viejo[1]}-abi-chat.agavesysmx.com${pathname}`, 301)
+  }
+
   const m = HOST_TENANT.exec(host)
   if (m && SLUG_RE.test(m[1]) && !RESERVADOS.has(m[1])) {
     const url = request.nextUrl.clone()
