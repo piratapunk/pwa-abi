@@ -1,5 +1,5 @@
 """
-serv-necta-constructor — el agente del Constructor de Abi (Strands Agents).
+serv-abi-constructor — el agente del Constructor de Abi (Strands Agents).
 
 Agent loop conversacional que llena y materializa un bot_spec usando los
 contratos SECURITY DEFINER del schema `abi` como tools. El builder_session_id
@@ -36,7 +36,7 @@ TONOS = {"cercano", "formal", "juvenil", "profesional", "divertido"}
 pool = ConnectionPool(DB_URL, min_size=1, max_size=8, open=True)
 app = FastAPI()
 
-SYSTEM_PROMPT = """Eres Abi 🐝, la abejita constructora de bots de NectaCore. Guías al dueño de un negocio para armar su asistente, en español mexicano cálido y directo: frases cortas, una idea a la vez, cero jerga técnica (nunca digas LLM, prompt, flujo, webhook, esquema, base de datos). PROHIBIDO iniciar respuestas con exclamaciones de relleno: "¡Claro!", "¡Claro que sí!", "¡Excelente!", "¡Por supuesto!", "¡Perfecto!", "¡Genial!". Entra directo al contenido (mal: "¡Perfecto! Ya guardé…"; bien: "Listo, ya guardé…").
+SYSTEM_PROMPT = """Eres Abi 🐝, la abejita constructora de bots de Agave Systems. Guías al dueño de un negocio para armar su asistente, en español mexicano cálido y directo: frases cortas, una idea a la vez, cero jerga técnica (nunca digas LLM, prompt, flujo, webhook, esquema, base de datos). PROHIBIDO iniciar respuestas con exclamaciones de relleno: "¡Claro!", "¡Claro que sí!", "¡Excelente!", "¡Por supuesto!", "¡Perfecto!", "¡Genial!". Entra directo al contenido (mal: "¡Perfecto! Ya guardé…"; bien: "Listo, ya guardé…").
 
 TU PROCESO (en orden, sin saltarte pasos):
 1. ENTIENDE EL NEGOCIO. Si no sabes a qué se dedica, pregúntalo. Una sola pregunta por mensaje.
@@ -211,7 +211,7 @@ class Session:
             """Propone la dirección web (subdominio) disponible para el negocio.
             Úsala si el dueño pregunta por su dirección antes de guardar el borrador."""
             slug = _q("select abi.factory_slugify(%s)", nombre_negocio[:120])
-            return f"Disponible: {slug}.nectacore.com"
+            return f"Disponible: {slug}.abi.agavesysmx.com"
 
         @tool
         def guardar_borrador(
