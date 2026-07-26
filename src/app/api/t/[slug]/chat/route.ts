@@ -11,9 +11,13 @@ import {
 } from '@/lib/security'
 
 /*
- * Chat del bot de un tenant. El brain (n8n) carga la config y la KB del
- * schema PROPIO del tenant vía abi.tenant_chat_context — el mensaje del
- * cliente final viaja como dato por canal firmado.
+ * Chat del bot de un tenant.
+ *
+ * Con ABI_BRAIN_CHAT_URL configurada, el turno va a serv-abi-brain (el grafo:
+ * guardrail, herramientas por plan, checkpointer, memoria por contacto) por el
+ * mismo canal firmado. El historial NO viaja: la memoria de la conversación es
+ * el checkpointer del cerebro, con thread_id = sessionId. Sin la env, cae al
+ * workflow n8n anterior — que sigue siendo el ingreso de los canales externos.
  */
 
 const tenantChatSchema = z
@@ -72,28 +76,39 @@ export async function POST(
     (t) => !looksLikeInjection(t.content)
   )
 
+  const brainUrl = process.env.ABI_BRAIN_CHAT_URL
   const webhookUrl = process.env.ABI_TENANT_CHAT_N8N_WEBHOOK_URL
   const secret = process.env.ABI_FACTORY_HMAC_SECRET
-  if (!webhookUrl || !secret) {
+  if ((!brainUrl && !webhookUrl) || !secret) {
     return NextResponse.json({ output: FALLBACK })
   }
 
-  const payload = JSON.stringify({
-    slug,
-    message: body.message,
-    sessionId: body.sessionId,
-    conversationHistory: history,
-  })
+  const payload = JSON.stringify(
+    brainUrl
+      ? {
+          slug,
+          conversation_id: body.sessionId,
+          message: body.message,
+          channel: 'web',
+        }
+      : {
+          slug,
+          message: body.message,
+          sessionId: body.sessionId,
+          conversationHistory: history,
+        }
+  )
   const { header } = signPayload(payload, secret)
 
   try {
-    const res = await fetch(webhookUrl, {
+    const res = await fetch(brainUrl ?? webhookUrl!, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-abi-signature': header,
       },
-      signal: AbortSignal.timeout(25_000),
+      // El grafo puede dar más de una vuelta (herramientas); 25s se quedaba corto
+      signal: AbortSignal.timeout(45_000),
       body: payload,
     })
     if (!res.ok) return NextResponse.json({ output: FALLBACK })
