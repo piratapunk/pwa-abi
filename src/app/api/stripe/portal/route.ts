@@ -36,13 +36,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'unavailable' }, { status: 503 })
   }
 
-  const owns = await sql`select necta.user_owns_tenant(${userId}::uuid, ${body.slug}) as id`
+  const owns = await sql`select abi.user_owns_tenant(${userId}::uuid, ${body.slug}) as id`
   const tenantId = owns[0]?.id as string | null
   if (!tenantId) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
   const rows = await sql`
-    select stripe_customer_id from necta.tenants where id = ${tenantId}::uuid
+    select stripe_customer_id from abi.tenants where id = ${tenantId}::uuid
   `
   const customer = rows[0]?.stripe_customer_id as string | null
   if (!customer) {

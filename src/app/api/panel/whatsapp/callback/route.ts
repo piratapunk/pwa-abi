@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   if (!sql) return NextResponse.redirect(`${dest}?connected=0`)
 
   const rows = await sql`
-    select id, channel_profile_id from necta.tenants where slug = ${slug}
+    select id, channel_profile_id from abi.tenants where slug = ${slug}
   `
   const tenantId = rows[0]?.id as string | undefined
   const tenantProfileId = rows[0]?.channel_profile_id as string | null | undefined
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
   if (p.get('connected') === 'whatsapp' && accountId) {
     await sql`
-      select necta.set_tenant_channel(
+      select abi.set_tenant_channel(
         ${tenantId}::uuid, 'connected', null, ${accountId}, ${number})
     `
     /* la coexistencia deja la cuenta en el perfil default del canal:
@@ -43,6 +43,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(`${dest}?connected=1`)
   }
 
-  await sql`select necta.set_tenant_channel(${tenantId}::uuid, 'error', null, null, null)`
+  await sql`select abi.set_tenant_channel(${tenantId}::uuid, 'error', null, null, null)`
   return NextResponse.redirect(`${dest}?connected=0`)
 }

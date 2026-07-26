@@ -8,6 +8,7 @@ import {
   Filter,
   FolderOpen,
   Home,
+  LayoutDashboard,
   MessageSquare,
   Plug,
   Settings,
@@ -20,7 +21,7 @@ import { cn } from '@/lib/utils'
 /* navegación con estado activo real: el resaltado sigue a la ruta */
 
 const PANEL_ITEMS = [
-  { href: '', label: 'Resumen', icon: Home },
+  { href: '', label: 'Resumen', icon: LayoutDashboard },
   { href: '/conversaciones', label: 'Conversaciones', icon: MessageSquare },
   { href: '/clientes', label: 'Clientes', icon: UsersRound },
   { href: '/embudo', label: 'Embudo', icon: Filter },
@@ -46,6 +47,9 @@ export function PanelNav({
   if (variant === 'mobile') {
     return (
       <div className="mt-2 flex gap-3 overflow-x-auto text-xs">
+        <Link href="/inicio" className="whitespace-nowrap text-text-muted">
+          Inicio
+        </Link>
         {PANEL_ITEMS.map((item) => (
           <Link
             key={item.href}
@@ -64,6 +68,13 @@ export function PanelNav({
 
   return (
     <nav className="mt-6 flex flex-col gap-1">
+      <Link
+        href="/inicio"
+        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-text-muted transition-colors hover:bg-surface-raised hover:text-text"
+      >
+        <Home className="size-4" />
+        Inicio
+      </Link>
       {PANEL_ITEMS.map((item) => (
         <Link
           key={item.href}

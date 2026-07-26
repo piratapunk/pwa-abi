@@ -29,8 +29,8 @@ export function Footer() {
             <p className="t-eyebrow mb-3">Contacto</p>
             <ul className="space-y-2 text-text-muted">
               <li>
-                <a href="mailto:hola@nectacore.com" className="hover:text-text">
-                  hola@nectacore.com
+                <a href="mailto:hola@agavesysmx.com" className="hover:text-text">
+                  hola@agavesysmx.com
                 </a>
               </li>
               <li><Link href="/privacidad" className="hover:text-text">Aviso de privacidad</Link></li>
@@ -40,9 +40,9 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col items-start justify-between gap-2 border-t pt-6 text-xs text-text-muted sm:flex-row">
-          <p>© {new Date().getFullYear()} NectaCore. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} Agave Systems. Todos los derechos reservados.</p>
           <p>
-            Abi 🐝 es un producto de <span className="text-accent">NectaCore</span>.
+            Abi es un producto de <span className="text-accent">Agave Systems</span>.
           </p>
         </div>
       </div>

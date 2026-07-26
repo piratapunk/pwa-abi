@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { getAuthUserId, getAppOrigin } from '@/lib/auth/server'
 import { getSql } from '@/lib/db'
+import { FEATURES } from '@/lib/flags'
 import { SLUG_RE } from '@/lib/factory/spec'
 import { clientIp, hasAllowedOrigin, rateLimit } from '@/lib/security'
 import {
@@ -16,6 +17,9 @@ const connectSchema = z
   .strict()
 
 export async function POST(req: NextRequest) {
+  if (!FEATURES.selfServe || !FEATURES.whatsappSelfConnect) {
+    return NextResponse.json({ error: 'not_found' }, { status: 404 })
+  }
   if (!hasAllowedOrigin(req)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
@@ -37,7 +41,7 @@ export async function POST(req: NextRequest) {
   const sql = getSql()
   if (!sql) return NextResponse.json({ error: 'unavailable' }, { status: 503 })
 
-  const owns = await sql`select necta.user_owns_tenant(${userId}::uuid, ${body.slug}) as id`
+  const owns = await sql`select abi.user_owns_tenant(${userId}::uuid, ${body.slug}) as id`
   const tenantId = owns[0]?.id as string | null
   if (!tenantId) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
@@ -45,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   const rows = await sql`
     select name, plan, channel_profile_id, channel_status
-    from necta.tenants where id = ${tenantId}::uuid
+    from abi.tenants where id = ${tenantId}::uuid
   `
   const t = rows[0] as {
     name: string
@@ -69,7 +73,7 @@ export async function POST(req: NextRequest) {
     }
     /* persistir de inmediato: un fallo posterior no debe huerfanear el perfil */
     await sql`
-      select necta.set_tenant_channel(${tenantId}::uuid, 'connecting', ${profileId}, null, null)
+      select abi.set_tenant_channel(${tenantId}::uuid, 'connecting', ${profileId}, null, null)
     `
   }
 
@@ -82,7 +86,7 @@ export async function POST(req: NextRequest) {
   }
 
   await sql`
-    select necta.set_tenant_channel(${tenantId}::uuid, 'connecting', ${profileId}, null, null)
+    select abi.set_tenant_channel(${tenantId}::uuid, 'connecting', ${profileId}, null, null)
   `
   return NextResponse.json({ url: authUrl })
 }

@@ -3,7 +3,7 @@ import { z } from 'zod'
 /*
  * El contrato de datos del factory. Todo lo que el intake LLM produce y el
  * provisioning consume pasa por aquí. capabilities/limits NO existen en este
- * contrato a propósito: los fija el plan, server-side (necta.provision_tenant).
+ * contrato a propósito: los fija el plan, server-side (abi.provision_tenant).
  */
 
 export const SLUG_RE = /^[a-z][a-z0-9-]{2,29}$/

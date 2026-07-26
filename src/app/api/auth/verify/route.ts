@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
   const sql = getSql()
   if (body.bs && sql) {
     try {
-      await sql`select necta.claim_tenant(${body.bs}::uuid, ${data.user.id}::uuid)`
+      await sql`select abi.claim_tenant(${body.bs}::uuid, ${data.user.id}::uuid)`
     } catch {}
   }
 
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
   let redirect = '/inicio'
   if (sql) {
     try {
-      const rows = await sql`select necta.user_tenants(${data.user.id}::uuid) as t`
+      const rows = await sql`select abi.user_tenants(${data.user.id}::uuid) as t`
       const tenants = (rows[0]?.t as { slug: string }[]) ?? []
       if (tenants.length === 1) redirect = `/panel/${tenants[0].slug}`
     } catch {}

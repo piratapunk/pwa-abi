@@ -28,7 +28,7 @@ export async function GET(
   if (!sql) return NextResponse.json({ messages: [] })
   try {
     const rows = await sql`
-      select necta.tenant_session_messages(${slug}, ${sessionId}::uuid) as r
+      select abi.tenant_session_messages(${slug}, ${sessionId}::uuid) as r
     `
     const r = rows[0]?.r as {
       ok: boolean

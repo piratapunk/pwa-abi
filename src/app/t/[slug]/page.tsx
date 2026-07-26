@@ -27,7 +27,7 @@ async function loadTenant(slug: string): Promise<TenantContext | null> {
   const sql = getSql()
   if (!sql) return null
   try {
-    const rows = await sql`select necta.tenant_chat_context(${slug}) as ctx`
+    const rows = await sql`select abi.tenant_chat_context(${slug}) as ctx`
     const ctx = rows[0]?.ctx as TenantContext
     return ctx?.ok ? ctx : null
   } catch {
@@ -73,10 +73,10 @@ export default async function TenantBotPage({
       />
       <p className="mt-3 shrink-0 text-center text-xs text-text-muted sm:mt-4">
         Creado con{' '}
-        <a href="https://nectacore.com" className="text-accent hover:underline">
-          Abi · NectaCore
+        <a href="https://agavesysmx.com" className="text-accent hover:underline">
+          Abi
         </a>{' '}
-        🐝
+        de Agave Systems
       </p>
     </div>
   )

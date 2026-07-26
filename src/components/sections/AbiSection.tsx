@@ -37,7 +37,7 @@ export function AbiSection() {
     <section id="abi" className="scroll-mt-16 bg-surface/40">
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 sm:py-24 md:grid-cols-[6fr_6fr] lg:grid-cols-[7fr_5fr] lg:gap-16">
         <Reveal>
-          <Badge variant="soft">El producto estrella de NectaCore</Badge>
+          <Badge variant="soft">Un producto de Agave Systems</Badge>
           <h2 className="mt-4 text-3xl font-semibold sm:text-4xl">
             Abi, la abejita que arma tu asistente
           </h2>

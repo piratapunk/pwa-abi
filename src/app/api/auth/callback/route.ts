@@ -30,14 +30,14 @@ export async function GET(req: NextRequest) {
   const sql = getSql()
   if (bs && UUID_RE.test(bs) && sql) {
     try {
-      await sql`select necta.claim_tenant(${bs}::uuid, ${data.user.id}::uuid)`
+      await sql`select abi.claim_tenant(${bs}::uuid, ${data.user.id}::uuid)`
     } catch {}
   }
 
   /* con un solo bot, directo a su panel; si no, a la lista */
   if (sql) {
     try {
-      const rows = await sql`select necta.user_tenants(${data.user.id}::uuid) as t`
+      const rows = await sql`select abi.user_tenants(${data.user.id}::uuid) as t`
       const tenants = (rows[0]?.t as { slug: string }[]) ?? []
       if (tenants.length === 1) {
         return NextResponse.redirect(`${origin}/panel/${tenants[0].slug}`)

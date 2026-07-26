@@ -6,7 +6,7 @@ import { getStripe } from '@/lib/stripe'
 
 /*
  * Webhook de Stripe (LIVE). Idempotente por event.id; el upgrade/downgrade
- * pasa por el contrato necta.upgrade_tenant (capabilities/limits desde
+ * pasa por el contrato abi.upgrade_tenant (capabilities/limits desde
  * plan_limits). El downgrade nunca borra el bot.
  */
 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
   /* idempotencia: si ya lo vimos, 200 y fuera */
   const seen = await sql`
-    insert into necta.stripe_webhook_events (id, type)
+    insert into abi.stripe_webhook_events (id, type)
     values (${event.id}, ${event.type})
     on conflict (id) do nothing
     returning id
@@ -56,13 +56,13 @@ export async function POST(req: NextRequest) {
         const interval =
           session.mode === 'subscription' ? null : null
         await sql`
-          update necta.tenants set
+          update abi.tenants set
             stripe_customer_id = ${typeof session.customer === 'string' ? session.customer : null},
             stripe_subscription_id = ${typeof session.subscription === 'string' ? session.subscription : null},
             subscription_status = 'active'
           where id = ${tenantId}::uuid
         `
-        await sql`select necta.upgrade_tenant(${tenantId}::uuid, 'premium')`
+        await sql`select abi.upgrade_tenant(${tenantId}::uuid, 'premium')`
         void interval
         break
       }
@@ -80,13 +80,13 @@ export async function POST(req: NextRequest) {
                 : null
         if (status) {
           await sql`
-            update necta.tenants set
+            update abi.tenants set
               subscription_status = ${status},
               premium_interval = ${sub.items?.data?.[0]?.price?.recurring?.interval ?? null}
             where id = ${tenantId}::uuid
           `
           if (status === 'active') {
-            await sql`select necta.upgrade_tenant(${tenantId}::uuid, 'premium')`
+            await sql`select abi.upgrade_tenant(${tenantId}::uuid, 'premium')`
           }
         }
         break
@@ -96,12 +96,12 @@ export async function POST(req: NextRequest) {
         const tenantId = tenantIdOf(sub.metadata)
         if (!tenantId) break
         await sql`
-          update necta.tenants set
+          update abi.tenants set
             subscription_status = 'canceled',
             stripe_subscription_id = null
           where id = ${tenantId}::uuid
         `
-        await sql`select necta.upgrade_tenant(${tenantId}::uuid, 'free')`
+        await sql`select abi.upgrade_tenant(${tenantId}::uuid, 'free')`
         break
       }
       case 'invoice.payment_failed':
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
           const status =
             event.type === 'invoice.payment_failed' ? 'past_due' : 'active'
           await sql`
-            update necta.tenants set subscription_status = ${status}
+            update abi.tenants set subscription_status = ${status}
             where stripe_subscription_id = ${subId}
           `
         }
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
   } catch {
     /* 500 para que Stripe reintente; liberar el id para permitir el retry */
     try {
-      await sql`delete from necta.stripe_webhook_events where id = ${event.id}`
+      await sql`delete from abi.stripe_webhook_events where id = ${event.id}`
     } catch {}
     return NextResponse.json({ error: 'processing_failed' }, { status: 500 })
   }

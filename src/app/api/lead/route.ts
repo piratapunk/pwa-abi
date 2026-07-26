@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   try {
     await sql`
-      insert into necta.leads (name, email, phone, business, message, session_id, source)
+      insert into abi.leads (name, email, phone, business, message, session_id, source)
       values (
         ${body.name},
         ${body.email ?? null},
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         ${body.business ?? null},
         ${body.message ?? null},
         ${body.sessionId ?? null},
-        'nectacore.com'
+        'abi.agavesysmx.com'
       )
     `
     return NextResponse.json({ ok: true })

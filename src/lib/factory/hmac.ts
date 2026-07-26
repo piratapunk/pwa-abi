@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 /*
  * Contrato de canal firmado (estilo Stripe): el secreto NUNCA viaja — solo la
  * firma HMAC-SHA256 de `<timestamp>.<body>` con ventana anti-replay. Verifica
- * el otro extremo (n8n) con el mismo secreto leído de necta.factory_secrets.
+ * el otro extremo (n8n) con el mismo secreto leído de abi.factory_secrets.
  */
 
 export const REPLAY_WINDOW_S = 300

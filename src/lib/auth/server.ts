@@ -60,6 +60,6 @@ export async function getAppOrigin(): Promise<string> {
   if (envUrl) return envUrl.replace(/\/$/, '')
   const h = await headers()
   const proto = h.get('x-forwarded-proto') ?? 'https'
-  const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'nectacore.com'
+  const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'abi.agavesysmx.com'
   return `${proto}://${host.split(',')[0].trim()}`
 }

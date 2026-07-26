@@ -49,13 +49,13 @@ export async function sendMagicLinkEmail(
   link: string
 ): Promise<boolean> {
   const apiKey = process.env.ABI_RESEND_API_KEY
-  const from = process.env.ABI_EMAIL_FROM ?? 'Abi de NectaCore <hola@nectacore.com>'
+  const from = process.env.ABI_EMAIL_FROM ?? 'Abi de Agave Systems <hola@agavesysmx.com>'
   if (!apiKey) return false
 
   const html = `
   <div style="font-family: -apple-system, Segoe UI, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
     <div style="text-align: center; font-size: 40px;">🐝</div>
-    <h1 style="font-size: 22px; text-align: center; color: #171310;">Tu acceso a NectaCore</h1>
+    <h1 style="font-size: 22px; text-align: center; color: #171310;">Tu acceso a Abi</h1>
     <p style="color: #4a4238; font-size: 15px; line-height: 1.6;">
       Soy Abi. Con este enlace entras a tu cuenta y tu asistente queda ligado a ti —
       así lo administras cuando quieras.
@@ -69,7 +69,7 @@ export async function sendMagicLinkEmail(
       El enlace caduca pronto y solo sirve una vez. Si no pediste esto, ignora este correo.
     </p>
     <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-    <p style="color: #8a7f70; font-size: 11px; text-align: center;">Abi 🐝 es un producto de NectaCore · nectacore.com</p>
+    <p style="color: #8a7f70; font-size: 11px; text-align: center;">Abi es un producto de Agave Systems · agavesysmx.com</p>
   </div>`
 
   try {
@@ -83,7 +83,7 @@ export async function sendMagicLinkEmail(
       body: JSON.stringify({
         from,
         to: [email],
-        subject: 'Tu acceso a NectaCore 🐝',
+        subject: 'Tu acceso a Abi',
         html,
       }),
     })
