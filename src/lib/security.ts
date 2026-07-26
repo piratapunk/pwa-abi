@@ -39,8 +39,9 @@ export function hasAllowedOrigin(req: NextRequest): boolean {
   }
   const origin = req.headers.get('origin')
   if (!origin) return true
-  /* los bots de tenants viven en subdominios: su Origin también es válido */
-  if (/^https:\/\/([a-z0-9-]+\.)?abi\.agavesysmx\.com$/.test(origin)) return true
+  /* los bots de tenants viven en `<slug>-abi-chat.`: su Origin también es válido */
+  if (origin === 'https://abi.agavesysmx.com') return true
+  if (/^https:\/\/[a-z0-9-]+-abi-chat\.agavesysmx\.com$/.test(origin)) return true
   if (origin === 'https://agavesysmx.com') return true
   const allowed = [
     process.env.NEXT_PUBLIC_SITE_URL,
