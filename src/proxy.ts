@@ -48,6 +48,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(`https://${viejo[1]}-abi-chat.agavesysmx.com${pathname}`, 301)
   }
 
+  // La superficie Necta se DEPRECA entera: el constructor canónico vive en el
+  // portal de Agave. Este host solo conserva sus APIs (el matcher excluye /api)
+  // y los hosts de tenant siguen sirviendo bots más abajo.
+  if (host === 'abi.agavesysmx.com' || host === 'www.abi.agavesysmx.com') {
+    return NextResponse.redirect('https://agavesysmx.com/lab/producto/abi', 301)
+  }
+
   const m = HOST_TENANT.exec(host)
   if (m && SLUG_RE.test(m[1]) && !RESERVADOS.has(m[1])) {
     const url = request.nextUrl.clone()

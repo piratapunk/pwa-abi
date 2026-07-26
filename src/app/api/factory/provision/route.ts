@@ -24,7 +24,13 @@ const provisionSchema = z
   .strict()
 
 export async function POST(req: NextRequest) {
-  if (!hasAllowedOrigin(req)) {
+  /* El portal de Agave provisiona server-to-server con token compartido: sin
+     navegador no hay Origin ni cookie humana — el token es su equivalente. */
+  const portalToken = process.env.ABI_PORTAL_TOKEN
+  const esPortal = Boolean(
+    portalToken && req.headers.get('authorization') === `Bearer ${portalToken}`,
+  )
+  if (!esPortal && !hasAllowedOrigin(req)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
   const ip = clientIp(req)
@@ -39,8 +45,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'bad_request' }, { status: 400 })
   }
 
-  /* humano verificado: cookie firmada del constructor, o token propio */
-  if (!isHumanCookieValid(req.cookies.get(HUMAN_COOKIE)?.value)) {
+  /* humano verificado: cookie firmada del constructor, o token propio.
+     El portal ya corrió su propia conversación con el dueño — se le cree. */
+  if (!esPortal && !isHumanCookieValid(req.cookies.get(HUMAN_COOKIE)?.value)) {
     const ok = body.turnstileToken
       ? await verifyTurnstile(body.turnstileToken, ip)
       : false
