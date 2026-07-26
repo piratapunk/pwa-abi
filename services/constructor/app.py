@@ -211,7 +211,7 @@ class Session:
             """Propone la dirección web (subdominio) disponible para el negocio.
             Úsala si el dueño pregunta por su dirección antes de guardar el borrador."""
             slug = _q("select abi.factory_slugify(%s)", nombre_negocio[:120])
-            return f"Disponible: {slug}.abi.agavesysmx.com"
+            return f"Disponible: {slug}-abi-chat.agavesysmx.com"
 
         @tool
         def guardar_borrador(

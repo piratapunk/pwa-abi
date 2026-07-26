@@ -3,19 +3,22 @@ import { NextRequest, NextResponse } from 'next/server'
 const SLUG_RE = /^[a-z][a-z0-9-]{2,29}$/
 
 /*
- * Routing multi-tenant estilo Netlify: `<slug>.abi.agavesysmx.com` sirve el bot
- * del tenant reescribiendo internamente a /t/<slug>.
+ * Routing multi-tenant estilo Netlify: `<slug>-abi-chat.agavesysmx.com` sirve
+ * el bot del tenant reescribiendo internamente a /t/<slug>.
  *
- * El nivel extra (`.abi.`) es deliberado. `<slug>.agavesysmx.com` chocaría con
- * los subdominios propios de la empresa: un tenant llamado "www", "blog" o "app"
- * secuestraría uno nuestro. Con `.abi.` el espacio de nombres de la fábrica
- * queda separado del de Agave Systems, y el wildcard de DNS es acotado.
+ * El sufijo `-abi-chat` es deliberado, por dos razones. Primero, separa el
+ * espacio de nombres de la fábrica del de Agave Systems: un tenant llamado
+ * "www" o "blog" no puede secuestrar un subdominio nuestro porque su host
+ * termina en `-abi-chat`. Segundo, mantiene los tenants en PRIMER nivel de
+ * subdominio — `*.agavesysmx.com` lo cubre el certificado Universal de
+ * Cloudflare; un segundo nivel (`<slug>.abi.`) exigiría el certificado
+ * avanzado de paga.
  *
  * `nectacore.com` se retira: los 3 tenants que había eran demos y nada se
  * vendió. El patrón viejo NO se conserva — mantenerlo "por si acaso" es dejar
  * viva la marca que se está apagando.
  */
-const HOST_TENANT = /^([a-z0-9-]+)\.abi\.agavesysmx\.com$/
+const HOST_TENANT = /^([a-z0-9-]+)-abi-chat\.agavesysmx\.com$/
 
 // `abi.factory_slugify` ya los reserva al crear el tenant. Se repiten aquí a
 // propósito: si algún día se provisiona un tenant por otra vía, el borde no
