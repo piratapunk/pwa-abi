@@ -165,10 +165,10 @@ export function TenantChat({
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border bg-surface">
+    <div className="flex flex-1 flex-col overflow-hidden border bg-surface">
       <div className="border-b bg-bg/60 px-4 py-3">
         <p className="font-display text-sm font-bold">{botName}</p>
-        <p className="text-xs text-text-muted">
+        <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
           {busy
             ? 'escribiendo…'
             : humanMode
@@ -176,15 +176,15 @@ export function TenantChat({
               : 'en línea'}
         </p>
       </div>
-      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+      <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {messages.map((m) => (
           <div key={m.id} className={cn(m.role !== 'user' && 'space-y-0.5')}>
             <div
               className={cn(
-                'rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed',
+                'px-3.5 py-2.5 text-sm leading-relaxed',
                 m.role === 'user'
-                  ? 'ml-auto max-w-[85%] w-fit whitespace-pre-wrap rounded-br-sm bg-accent text-on-accent'
-                  : 'w-fit max-w-full rounded-bl-sm bg-surface-raised text-text'
+                  ? 'ml-auto max-w-[85%] w-fit whitespace-pre-wrap bg-accent text-on-accent'
+                  : 'w-fit max-w-full bg-surface-raised text-text'
               )}
             >
               {m.role === 'user' ? <Linkify text={m.content} /> : <ChatMarkdown text={m.content} />}
@@ -195,28 +195,30 @@ export function TenantChat({
           </div>
         ))}
         {busy && (
-          <div className="flex w-fit items-center gap-1.5 rounded-2xl rounded-bl-sm bg-surface-raised px-4 py-3">
-            <span className="size-1.5 animate-honey-pulse rounded-full bg-accent" />
-            <span className="size-1.5 animate-honey-pulse rounded-full bg-accent [animation-delay:0.4s]" />
-            <span className="size-1.5 animate-honey-pulse rounded-full bg-accent [animation-delay:0.8s]" />
-          </div>
-        )}
-
-        {!hasUserMessages && !busy && suggestions.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-1">
-            {suggestions.map((q) => (
-              <button
-                key={q}
-                type="button"
-                onClick={() => void sendText(q)}
-                className="border border-accent/40 bg-accent-soft px-3 py-1.5 text-xs text-accent transition-colors hover:bg-accent hover:text-on-accent"
-              >
-                {q}
-              </button>
-            ))}
+          <div className="flex w-fit items-center gap-1.5 bg-surface-raised px-4 py-3">
+            <span className="size-1.5 animate-honey-pulse bg-accent" />
+            <span className="size-1.5 animate-honey-pulse bg-accent [animation-delay:0.4s]" />
+            <span className="size-1.5 animate-honey-pulse bg-accent [animation-delay:0.8s]" />
           </div>
         )}
       </div>
+
+      {/* Arranques pegados al chat bar, como en el constructor del portal. */}
+      {!hasUserMessages && !busy && suggestions.length > 0 && (
+        <div className="flex flex-wrap gap-2 px-4 pb-2">
+          {suggestions.map((q) => (
+            <button
+              key={q}
+              type="button"
+              onClick={() => void sendText(q)}
+              className="border border-accent/40 bg-accent-soft px-3 py-2 text-left text-xs leading-snug text-accent transition-colors hover:bg-accent hover:text-on-accent"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
+
       <form onSubmit={send} className="flex items-center gap-2 border-t bg-bg/60 p-3">
         <Input
           value={draft}
@@ -224,8 +226,15 @@ export function TenantChat({
           placeholder="Escribe tu mensaje…"
           maxLength={2000}
           aria-label="Mensaje"
+          className="rounded-none"
         />
-        <Button type="submit" size="icon" aria-label="Enviar" disabled={!draft.trim() || busy}>
+        <Button
+          type="submit"
+          size="icon"
+          aria-label="Enviar"
+          disabled={!draft.trim() || busy}
+          className="rounded-none"
+        >
           <Send className="size-4" />
         </Button>
       </form>
