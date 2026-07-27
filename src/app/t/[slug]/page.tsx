@@ -69,11 +69,11 @@ export default async function TenantBotPage({
         {/* Placas oscuras sobre el grano (patrón "EL PECOREO" del portal):
             el texto nunca pelea con el gradiente. Alineado a la izquierda. */}
         <div className="mb-4 shrink-0 sm:mb-6">
-          <p className="inline-block bg-[#0a0a0a] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.3em] text-white/85">
+          <p className="inline-block bg-black/55 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.3em] text-white/85 backdrop-blur-sm">
             Asistente de
           </p>
           <h1 className="mt-px block">
-            <span className="inline-block bg-[#0a0a0a] px-3 py-2 text-3xl font-bold text-white sm:text-4xl">
+            <span className="inline-block bg-black/55 px-2.5 py-1.5 text-xl font-bold text-white backdrop-blur-sm sm:text-2xl">
               {tenant.name}
             </span>
           </h1>
@@ -85,7 +85,7 @@ export default async function TenantBotPage({
           suggestions={suggestionsFor(persona.vertical)}
         />
         <p className="mt-3 shrink-0 sm:mt-4">
-          <span className="inline-block bg-[#0a0a0a] px-3 py-1.5 text-xs text-white/85">
+          <span className="inline-block bg-black/55 px-2.5 py-1 text-[11px] text-white/85 backdrop-blur-sm">
             Creado con{' '}
             <a href="https://agavesysmx.com" className="font-semibold text-white hover:underline">
               Abi

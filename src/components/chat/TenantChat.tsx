@@ -179,7 +179,7 @@ export function TenantChat({
 
   return (
     <div
-      className="flex min-h-0 flex-1 flex-col overflow-hidden lg:h-[min(40rem,80dvh)] lg:flex-none"
+      className="flex min-h-0 flex-1 flex-col overflow-hidden lg:h-[min(50rem,86dvh)] lg:flex-none"
       style={{ backgroundColor: A.block, border: `1px solid ${A.rule}` }}
     >
       {/* Encabezado: marca + nombre + estado, en el registro del portal. */}
