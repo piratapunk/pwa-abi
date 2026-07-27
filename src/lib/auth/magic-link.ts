@@ -34,10 +34,17 @@ export async function generateMagicLink(
     if (!res.ok) return null
     const data = (await res.json()) as {
       hashed_token?: string
-      properties?: { hashed_token?: string }
+      verification_type?: string
+      properties?: { hashed_token?: string; verification_type?: string }
     }
     const token = data.hashed_token ?? data.properties?.hashed_token
-    return token ? ({ token_hash: token, type } satisfies GeneratedLink) : null
+    if (!token) return null
+    /* GoTrue auto-crea al usuario nuevo y el token resultante se canjea como
+       'signup' aunque se haya pedido 'magiclink' — el tipo real viene en
+       verification_type, y canjear con el tipo pedido da "expired" */
+    const vt = data.verification_type ?? data.properties?.verification_type
+    const realType = vt === 'signup' ? 'signup' : vt === 'magiclink' ? 'magiclink' : type
+    return { token_hash: token, type: realType } satisfies GeneratedLink
   }
 
   /* usuario existente → magiclink; nuevo → signup (auto-registra) */
