@@ -1,26 +1,37 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Send } from 'lucide-react'
 
 import { ChatMarkdown } from '@/components/chat/ChatMarkdown'
 import { Linkify } from '@/components/chat/Linkify'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { AbiAsterisk } from '@/components/brand/AbiAsterisk'
 import { cn } from '@/lib/utils'
 
 type Msg = { id: string; role: 'user' | 'assistant' | 'owner'; content: string }
 
+/* La paleta del sistema Abi del portal (labTheme), aplicada tal cual. */
+const A = {
+  block: '#0a0a0a',
+  blockUp: '#141414',
+  blockHi: '#1f1f1f',
+  rule: '#262626',
+  accent: '#c6f25c',
+  ink: '#000000',
+  text: '#f4f4f0',
+  textMuted: '#a3a396',
+  textFaint: '#6b6b60',
+}
+
 function getSid(slug: string): string {
-  const key = `necta_tenant_sid_${slug}`
+  const key = `abi_tenant_sid_${slug}`
+  const legacy = `necta_tenant_sid_${slug}`
   try {
     /* localStorage: la sesión sobrevive al cierre del navegador — el bot
-       recuerda al visitante 1:1 */
-    let sid = localStorage.getItem(key)
-    if (!sid) {
-      sid = crypto.randomUUID()
-      localStorage.setItem(key, sid)
-    }
+       recuerda al visitante 1:1. Migra la clave vieja de necta sin perderla. */
+    let sid = localStorage.getItem(key) ?? localStorage.getItem(legacy)
+    if (!sid) sid = crypto.randomUUID()
+    localStorage.setItem(key, sid)
+    localStorage.removeItem(legacy)
     return sid
   } catch {
     return crypto.randomUUID()
@@ -60,23 +71,21 @@ export function TenantChat({
       if (busyRef.current) return
       setHumanMode(data.mode === 'human')
       if (data.messages?.length) {
-        setMessages([
-          { id: 'greeting', role: 'assistant', content: greeting },
-          ...data.messages.map((m) => ({
+        setMessages(
+          data.messages.map((m) => ({
             id: m.id != null ? `db-${m.id}` : crypto.randomUUID(),
             role: m.role,
             content: m.content,
           })),
-        ])
+        )
       }
     } catch {}
-  }, [slug, greeting])
+  }, [slug])
 
   useEffect(() => {
     sidRef.current = getSid(slug)
-    setMessages([{ id: 'greeting', role: 'assistant', content: greeting }])
     void syncHistory()
-  }, [slug, greeting, syncHistory])
+  }, [slug, syncHistory])
 
   /* polling: si una persona del negocio entra a la plática, sus mensajes
      aparecen sin recargar */
@@ -108,7 +117,7 @@ export function TenantChat({
     busyRef.current = true
     try {
       const history = messages
-        .filter((m) => m.id !== 'greeting' && m.role !== 'owner')
+        .filter((m) => m.role !== 'owner')
         .slice(-10)
         .map((m) => ({ role: m.role, content: m.content }))
       const body = JSON.stringify({
@@ -144,9 +153,7 @@ export function TenantChat({
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content:
-            data.output?.trim() ||
-            'Se me atoró algo. ¿Lo intentamos de nuevo?',
+          content: data.output?.trim() || 'Se me atoró algo. ¿Lo intentamos de nuevo?',
         },
       ])
     } catch {
@@ -164,54 +171,87 @@ export function TenantChat({
     }
   }
 
+  const status = busy
+    ? 'escribiendo…'
+    : humanMode
+      ? 'te atiende una persona del equipo'
+      : 'en línea'
+
   return (
-    <div className="flex flex-1 flex-col overflow-hidden border bg-surface">
-      <div className="border-b bg-bg/60 px-4 py-3">
-        <p className="font-display text-sm font-bold">{botName}</p>
-        <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
-          {busy
-            ? 'escribiendo…'
-            : humanMode
-              ? 'te atiende una persona del equipo'
-              : 'en línea'}
-        </p>
+    <div
+      className="flex min-h-0 flex-1 flex-col overflow-hidden"
+      style={{ backgroundColor: A.block, border: `1px solid ${A.rule}` }}
+    >
+      {/* Encabezado: marca + nombre + estado, en el registro del portal. */}
+      <div
+        className="flex items-center gap-3 border-b px-5 py-3.5"
+        style={{ borderColor: A.rule, backgroundColor: A.blockUp }}
+      >
+        <AbiAsterisk className="h-5 w-5 shrink-0" />
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold" style={{ color: A.text }}>
+            {botName}
+          </p>
+          <p
+            className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.2em]"
+            style={{ color: busy || humanMode ? A.accent : A.textFaint }}
+          >
+            {status}
+          </p>
+        </div>
       </div>
-      <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
-        {messages.map((m) => (
-          <div key={m.id} className={cn(m.role !== 'user' && 'space-y-0.5')}>
-            <div
-              className={cn(
-                'px-3.5 py-2.5 text-sm leading-relaxed',
-                m.role === 'user'
-                  ? 'ml-auto max-w-[85%] w-fit whitespace-pre-wrap bg-accent text-on-accent'
-                  : 'w-fit max-w-full bg-surface-raised text-text'
+
+      {/* El cuerpo. Vacío = saludo centrado (tipo assistant-ui); con plática =
+          hilo de burbujas cuadradas con scroll interno. */}
+      {!hasUserMessages ? (
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+          <AbiAsterisk className="h-8 w-8 opacity-90" />
+          <p className="max-w-md text-lg font-semibold leading-snug sm:text-xl" style={{ color: A.text }}>
+            {greeting}
+          </p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: A.textFaint }}>
+            {botName} responde al momento
+          </p>
+        </div>
+      ) : (
+        <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-5">
+          {messages.map((m) => (
+            <div key={m.id} className={cn(m.role !== 'user' && 'space-y-1')}>
+              <div
+                className="w-fit max-w-[85%] px-4 py-3 text-[14px] leading-relaxed"
+                style={
+                  m.role === 'user'
+                    ? { marginLeft: 'auto', backgroundColor: A.accent, color: A.ink, whiteSpace: 'pre-wrap' }
+                    : { backgroundColor: A.blockHi, color: A.text }
+                }
+              >
+                {m.role === 'user' ? <Linkify text={m.content} /> : <ChatMarkdown text={m.content} />}
+              </div>
+              {m.role === 'owner' && (
+                <p className="font-mono text-[9px] uppercase tracking-[0.18em]" style={{ color: A.textFaint }}>
+                  equipo de {botName}
+                </p>
               )}
-            >
-              {m.role === 'user' ? <Linkify text={m.content} /> : <ChatMarkdown text={m.content} />}
             </div>
-            {m.role === 'owner' && (
-              <p className="text-[10px] text-text-muted">equipo de {botName}</p>
-            )}
-          </div>
-        ))}
-        {busy && (
-          <div className="flex w-fit items-center gap-1.5 bg-surface-raised px-4 py-3">
-            <span className="size-1.5 animate-honey-pulse bg-accent" />
-            <span className="size-1.5 animate-honey-pulse bg-accent [animation-delay:0.4s]" />
-            <span className="size-1.5 animate-honey-pulse bg-accent [animation-delay:0.8s]" />
-          </div>
-        )}
-      </div>
+          ))}
+          {busy && (
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: A.textFaint }}>
+              {botName} está escribiendo…
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Arranques pegados al chat bar, como en el constructor del portal. */}
       {!hasUserMessages && !busy && suggestions.length > 0 && (
-        <div className="flex flex-wrap gap-2 px-4 pb-2">
+        <div className="flex flex-wrap gap-px px-5 pb-2">
           {suggestions.map((q) => (
             <button
               key={q}
               type="button"
               onClick={() => void sendText(q)}
-              className="border border-accent/40 bg-accent-soft px-3 py-2 text-left text-xs leading-snug text-accent transition-colors hover:bg-accent hover:text-on-accent"
+              className="max-w-full whitespace-normal break-words px-3 py-2 text-left text-[12px] leading-snug transition-[filter] hover:brightness-125"
+              style={{ backgroundColor: A.blockUp, color: A.textMuted, border: `1px solid ${A.rule}` }}
             >
               {q}
             </button>
@@ -219,24 +259,26 @@ export function TenantChat({
         </div>
       )}
 
-      <form onSubmit={send} className="flex items-center gap-2 border-t bg-bg/60 p-3">
-        <Input
+      {/* Composer del sistema: input cuadrado + ENVIAR lima en mono. */}
+      <form onSubmit={send} className="flex gap-px p-5 pt-3">
+        <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Escribe tu mensaje…"
           maxLength={2000}
           aria-label="Mensaje"
-          className="rounded-none"
+          /* 16px en móvil: por debajo de eso iOS Safari hace zoom al enfocar. */
+          className="w-0 min-w-0 flex-1 px-4 py-3 text-[16px] outline-none sm:text-[14px]"
+          style={{ backgroundColor: A.blockHi, color: A.text, border: `1px solid ${A.rule}` }}
         />
-        <Button
+        <button
           type="submit"
-          size="icon"
-          aria-label="Enviar"
           disabled={!draft.trim() || busy}
-          className="rounded-none"
+          className="shrink-0 px-5 font-mono text-[11px] uppercase tracking-[0.18em] transition-opacity hover:opacity-90 disabled:opacity-40"
+          style={{ backgroundColor: A.accent, color: A.ink }}
         >
-          <Send className="size-4" />
-        </Button>
+          Enviar
+        </button>
       </form>
     </div>
   )
