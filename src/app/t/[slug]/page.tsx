@@ -62,7 +62,10 @@ export default async function TenantBotPage({
 
   return (
     <TenantStage>
-      <div className="mx-auto flex h-[100dvh] max-w-2xl flex-col px-4 pb-4 pt-5 sm:px-6 sm:pb-6 sm:pt-8">
+      {/* Proporción horizontal (referencia assistant-ui): ancho generoso y
+          altura acotada — en desktop el chat es un escenario apaisado centrado,
+          no una columna que llena la pantalla. En móvil sí ocupa todo. */}
+      <div className="mx-auto flex h-[100dvh] w-full max-w-5xl flex-col justify-center px-4 pb-4 pt-5 sm:px-8 sm:pb-6 sm:pt-8 lg:h-auto lg:min-h-[100dvh] lg:py-10">
         <div
           className="mb-4 shrink-0 text-center sm:mb-6"
           style={{ textShadow: '0 1px 20px rgba(0,0,0,0.6)' }}
