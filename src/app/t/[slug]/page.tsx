@@ -66,14 +66,17 @@ export default async function TenantBotPage({
           altura acotada — en desktop el chat es un escenario apaisado centrado,
           no una columna que llena la pantalla. En móvil sí ocupa todo. */}
       <div className="mx-auto flex h-[100dvh] w-full max-w-5xl flex-col justify-center px-4 pb-4 pt-5 sm:px-8 sm:pb-6 sm:pt-8 lg:h-auto lg:min-h-[100dvh] lg:py-10">
-        <div
-          className="mb-4 shrink-0 text-center sm:mb-6"
-          style={{ textShadow: '0 1px 20px rgba(0,0,0,0.6)' }}
-        >
-          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/80">
+        {/* Placas oscuras sobre el grano (patrón "EL PECOREO" del portal):
+            el texto nunca pelea con el gradiente. Alineado a la izquierda. */}
+        <div className="mb-4 shrink-0 sm:mb-6">
+          <p className="inline-block bg-[#0a0a0a] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.3em] text-white/85">
             Asistente de
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-white sm:text-3xl">{tenant.name}</h1>
+          <h1 className="mt-px block">
+            <span className="inline-block bg-[#0a0a0a] px-3 py-2 text-3xl font-bold text-white sm:text-4xl">
+              {tenant.name}
+            </span>
+          </h1>
         </div>
         <TenantChat
           slug={tenant.slug}
@@ -81,15 +84,14 @@ export default async function TenantBotPage({
           greeting={persona.greeting}
           suggestions={suggestionsFor(persona.vertical)}
         />
-        <p
-          className="mt-3 shrink-0 text-center text-xs text-white/80 sm:mt-4"
-          style={{ textShadow: '0 1px 14px rgba(0,0,0,0.6)' }}
-        >
-          Creado con{' '}
-          <a href="https://agavesysmx.com" className="font-semibold text-white hover:underline">
-            Abi
-          </a>{' '}
-          de Agave Systems
+        <p className="mt-3 shrink-0 sm:mt-4">
+          <span className="inline-block bg-[#0a0a0a] px-3 py-1.5 text-xs text-white/85">
+            Creado con{' '}
+            <a href="https://agavesysmx.com" className="font-semibold text-white hover:underline">
+              Abi
+            </a>{' '}
+            de Agave Systems
+          </span>
         </p>
       </div>
     </TenantStage>
