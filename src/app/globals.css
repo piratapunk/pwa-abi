@@ -15,39 +15,40 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, :root:not([data-theme="light"]), :root:not([data-theme="light"]) *));
 
 :root {
-  /* carbón cálido (matiz miel en los neutros) */
-  --bg: oklch(0.1650 0.0080 75);
-  --surface: oklch(0.1950 0.0100 75);
-  --surface-raised: oklch(0.2350 0.0120 75);
+  /* Tinta — el sistema visual del Abi de Agave (negro profundo, acento lima,
+     línea cuadrada Motion). El tenant hereda la marca del portal. */
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-raised: #141414;
   /* bordes por alfa, no por gris sólido: casi invisibles, solo estructura */
-  --border: oklch(1 0 0 / 8%);
-  --border-strong: oklch(1 0 0 / 14%);
+  --border: oklch(1 0 0 / 9%);
+  --border-strong: oklch(1 0 0 / 16%);
 
-  /* crema — 3 niveles de texto */
-  --text: oklch(0.9500 0.0180 85);
-  --text-muted: oklch(0.7250 0.0200 80);
-  --text-faint: oklch(0.5400 0.0180 78);
+  /* blanco — 3 niveles de texto */
+  --text: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.62);
+  --text-faint: rgba(255, 255, 255, 0.40);
 
-  /* miel / ámbar */
-  --accent: oklch(0.7900 0.1500 75);
-  --accent-strong: oklch(0.8450 0.1600 80);
-  --accent-soft: oklch(0.7900 0.1500 75 / 12%);
-  --accent-glow: oklch(0.7900 0.1550 75 / 13%);
-  --on-accent: oklch(0.2050 0.0300 75);
+  /* lima de Agave */
+  --accent: #c6f25c;
+  --accent-strong: #d4ff3f;
+  --accent-soft: rgba(198, 242, 92, 0.12);
+  --accent-glow: rgba(198, 242, 92, 0.13);
+  --on-accent: #000000;
 
-  /* luz de canto superior para superficies elevadas (solo dark) */
   --edge-light: oklch(1 0 0 / 6%);
-  --shadow-ambient: 0 8px 32px oklch(0 0 0 / 35%);
+  --shadow-ambient: 0 8px 32px oklch(0 0 0 / 45%);
 
-  /* burbuja del asistente en chats (light la entibia a crema) */
-  --bubble: oklch(0.2350 0.0120 75);
+  /* burbuja del asistente en chats */
+  --bubble: #1f1f1f;
 
   /* estados */
   --success: oklch(0.7200 0.1300 130);
   --warn: oklch(0.6800 0.1500 50);
   --premium: oklch(0.6800 0.1100 290);
 
-  --radius: 1rem;
+  /* línea cuadrada Motion: sin redondeo */
+  --radius: 0px;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -62,12 +63,12 @@
   --text-muted: oklch(0.4600 0.0180 75);
   --text-faint: oklch(0.6000 0.0160 75);
 
-  /* ámbar profundo para AA sobre claro */
-  --accent: oklch(0.5900 0.1300 70);
-  --accent-strong: oklch(0.5200 0.1250 65);
-  --accent-soft: oklch(0.5900 0.1300 70 / 12%);
-  --accent-glow: oklch(0.5900 0.1300 70 / 10%);
-  --on-accent: oklch(0.9900 0.0100 85);
+  /* verde profundo para AA sobre claro (lima es muy brillante en blanco) */
+  --accent: oklch(0.5200 0.1300 150);
+  --accent-strong: oklch(0.4600 0.1250 150);
+  --accent-soft: oklch(0.5200 0.1300 150 / 12%);
+  --accent-glow: oklch(0.5200 0.1300 150 / 10%);
+  --on-accent: oklch(0.9900 0.0100 130);
 
   --edge-light: transparent;
   --shadow-ambient: 0 8px 28px oklch(0 0 0 / 10%);

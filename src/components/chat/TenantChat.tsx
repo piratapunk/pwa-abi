@@ -209,7 +209,7 @@ export function TenantChat({
                 key={q}
                 type="button"
                 onClick={() => void sendText(q)}
-                className="rounded-full border border-accent/40 bg-accent-soft px-3 py-1.5 text-xs text-accent transition-colors hover:bg-accent hover:text-on-accent"
+                className="border border-accent/40 bg-accent-soft px-3 py-1.5 text-xs text-accent transition-colors hover:bg-accent hover:text-on-accent"
               >
                 {q}
               </button>
