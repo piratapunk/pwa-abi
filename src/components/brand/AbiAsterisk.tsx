@@ -1,5 +1,5 @@
 /** El asterisco de Agave (6 puntas), mismo trazo que la marca del portal. */
-export function AbiAsterisk({ className = '', color = '#c6f25c' }: { className?: string; color?: string }) {
+export function AbiAsterisk({ className = '', color = '#f2ed5c' }: { className?: string; color?: string }) {
   const c = 50
   const r = 50 * 0.86
   const lines = Array.from({ length: 3 }, (_, i) => {

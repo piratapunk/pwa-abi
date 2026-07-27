@@ -66,17 +66,12 @@ export default async function TenantBotPage({
           altura acotada — en desktop el chat es un escenario apaisado centrado,
           no una columna que llena la pantalla. En móvil sí ocupa todo. */}
       <div className="mx-auto flex h-[100dvh] w-full max-w-5xl flex-col justify-center px-4 pb-4 pt-5 sm:px-8 sm:pb-6 sm:pt-8 lg:h-auto lg:min-h-[100dvh] lg:py-10">
-        {/* Placas oscuras sobre el grano (patrón "EL PECOREO" del portal):
-            el texto nunca pelea con el gradiente. Alineado a la izquierda. */}
-        <div className="mb-4 shrink-0 sm:mb-6">
-          <p className="inline-block bg-black/55 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.3em] text-white/85 backdrop-blur-sm">
+        {/* Texto directo sobre el grano, en tinta (como el correo): sin placas. */}
+        <div className="mb-4 shrink-0 text-center sm:mb-6">
+          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#0d1206]/80">
             Asistente de
           </p>
-          <h1 className="mt-px block">
-            <span className="inline-block bg-black/55 px-2.5 py-1.5 text-xl font-bold text-white backdrop-blur-sm sm:text-2xl">
-              {tenant.name}
-            </span>
-          </h1>
+          <h1 className="mt-1 text-xl font-bold text-[#0d1206] sm:text-2xl">{tenant.name}</h1>
         </div>
         <TenantChat
           slug={tenant.slug}
@@ -84,14 +79,12 @@ export default async function TenantBotPage({
           greeting={persona.greeting}
           suggestions={suggestionsFor(persona.vertical)}
         />
-        <p className="mt-3 shrink-0 sm:mt-4">
-          <span className="inline-block bg-black/55 px-2.5 py-1 text-[11px] text-white/85 backdrop-blur-sm">
-            Creado con{' '}
-            <a href="https://agavesysmx.com" className="font-semibold text-white hover:underline">
-              Abi
-            </a>{' '}
-            de Agave Systems
-          </span>
+        <p className="mt-3 shrink-0 text-center text-[11px] text-[#0d1206]/80 sm:mt-4">
+          Creado con{' '}
+          <a href="https://agavesysmx.com" className="font-semibold text-[#0d1206] hover:underline">
+            Abi
+          </a>{' '}
+          de Agave Systems
         </p>
       </div>
     </TenantStage>

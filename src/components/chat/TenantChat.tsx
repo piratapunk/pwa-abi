@@ -15,7 +15,7 @@ const A = {
   blockUp: '#141414',
   blockHi: '#1f1f1f',
   rule: '#262626',
-  accent: '#c6f25c',
+  accent: '#f2ed5c',
   ink: '#000000',
   text: '#f4f4f0',
   textMuted: '#a3a396',
