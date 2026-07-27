@@ -15,6 +15,9 @@ const schema = z
   .object({
     slug: z.string().regex(SLUG_RE),
     plan: z.enum(['free', 'premium', 'enterprise']),
+    // Quien paga la suscripción queda como dueño del bot — es el vínculo del
+    // ecosistema con Coa (que lista los bots del cliente por este email).
+    ownerEmail: z.string().email().max(200).optional(),
   })
   .strict()
 
@@ -36,7 +39,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const rows = await sql`
-      update abi.tenants set plan = ${body.plan}
+      update abi.tenants set
+        plan = ${body.plan},
+        owner_email = coalesce(nullif(${body.ownerEmail ?? ''}, ''), owner_email)
        where slug = ${body.slug} and status = 'active'
        returning slug, plan`
     if (rows.length === 0) {
