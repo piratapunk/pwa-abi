@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { getAuthUserId } from '@/lib/auth/server'
 import { getSql } from '@/lib/db'
 import { botSpecSchema } from '@/lib/factory/spec'
+import { sendWelcomeEmail } from '@/lib/factory/welcome'
 import { clientIp, hasAllowedOrigin, rateLimit } from '@/lib/security'
 import { HUMAN_COOKIE, isHumanCookieValid, verifyTurnstile } from '@/lib/turnstile'
 
@@ -87,6 +88,23 @@ export async function POST(req: NextRequest) {
         claimed = true
       }
     } catch {}
+    /* ecosistema: el correo de la ficha es el dueño → Coa gratis desde el día
+       uno; varios bots con el mismo correo caen solos en la misma cuenta */
+    const ownerEmail = body.spec.contact?.email?.trim().toLowerCase()
+    if (ownerEmail) {
+      try {
+        await sql`
+          update abi.tenants set owner_email = coalesce(owner_email, ${ownerEmail})
+           where slug = ${result.slug} and status = 'active'`
+        await sendWelcomeEmail({
+          email: ownerEmail,
+          botName: body.spec.persona?.bot_name || body.spec.business_name || 'Tu asistente',
+          botUrl: `https://${result.subdomain}`,
+        })
+      } catch (e) {
+        console.error('[provision] owner_email:', e instanceof Error ? e.message : e)
+      }
+    }
     return NextResponse.json({
       ok: true,
       slug: result.slug,
