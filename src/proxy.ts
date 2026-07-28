@@ -62,6 +62,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.rewrite(url)
   }
 
+  // El comodín *.agavesysmx.com apunta a esta app por los tenants de arriba.
+  // Cualquier otro subdominio que caiga aquí (sonar., loquesea.) NO debe ver
+  // la landing deprecada: al portal. Solo hosts de dev (localhost) pasan.
+  if (host.endsWith('.agavesysmx.com')) {
+    return NextResponse.redirect(`https://agavesysmx.com${pathname}`, 301)
+  }
+
   return NextResponse.next()
 }
 
