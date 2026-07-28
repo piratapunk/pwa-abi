@@ -52,7 +52,7 @@ export function proxy(request: NextRequest) {
   // portal de Agave. Este host solo conserva sus APIs (el matcher excluye /api)
   // y los hosts de tenant siguen sirviendo bots más abajo.
   if (host === 'abi.agavesysmx.com' || host === 'www.abi.agavesysmx.com') {
-    return NextResponse.redirect('https://agavesysmx.com/lab/producto/abi', 301)
+    return NextResponse.redirect('https://agavesysmx.com/producto/abi', 301)
   }
 
   const m = HOST_TENANT.exec(host)
