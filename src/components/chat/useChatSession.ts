@@ -28,6 +28,25 @@ function getSessionId(): string {
   }
 }
 
+/* Un sessionId nuevo abre una conversación nueva del lado del servidor
+   (`abi.conversations.session_id` es UNIQUE); la anterior queda guardada. */
+function newSessionId(): string {
+  const sid = crypto.randomUUID()
+  try {
+    sessionStorage.setItem(SID_KEY, sid)
+  } catch {
+    /* sin almacenamiento la conversación vive lo que la pestaña */
+  }
+  return sid
+}
+
+const saludoInicial = (): ChatMessage => ({
+  id: 'greeting',
+  role: 'assistant',
+  content: GREETING,
+  visible: GREETING,
+})
+
 export function useChatSession() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isThinking, setIsThinking] = useState(false)
@@ -37,17 +56,21 @@ export function useChatSession() {
 
   useEffect(() => {
     sidRef.current = getSessionId()
-    setMessages([
-      {
-        id: 'greeting',
-        role: 'assistant',
-        content: GREETING,
-        visible: GREETING,
-      },
-    ])
+    setMessages([saludoInicial()])
     return () => {
       if (revealTimer.current) clearInterval(revealTimer.current)
     }
+  }, [])
+
+  const reset = useCallback(() => {
+    if (revealTimer.current) {
+      clearInterval(revealTimer.current)
+      revealTimer.current = null
+    }
+    sidRef.current = newSessionId()
+    turnRef.current = 0
+    setIsThinking(false)
+    setMessages([saludoInicial()])
   }, [])
 
   const reveal = useCallback((id: string, full: string) => {
@@ -139,5 +162,5 @@ export function useChatSession() {
     [messages, isThinking, reveal]
   )
 
-  return { messages, send, isThinking }
+  return { messages, send, isThinking, reset }
 }

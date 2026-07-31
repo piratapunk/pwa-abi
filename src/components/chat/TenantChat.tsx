@@ -22,8 +22,11 @@ const A = {
   textFaint: '#6b6b60',
 }
 
+const sidKey = (slug: string) => `abi_tenant_sid_${slug}`
+const prevKey = (slug: string) => `abi_tenant_sid_previas_${slug}`
+
 function getSid(slug: string): string {
-  const key = `abi_tenant_sid_${slug}`
+  const key = sidKey(slug)
   const legacy = `necta_tenant_sid_${slug}`
   try {
     /* localStorage: la sesión sobrevive al cierre del navegador — el bot
@@ -37,6 +40,53 @@ function getSid(slug: string): string {
     return crypto.randomUUID()
   }
 }
+
+function getPrevias(slug: string): string[] {
+  try {
+    const raw: unknown = JSON.parse(localStorage.getItem(prevKey(slug)) ?? '[]')
+    return Array.isArray(raw) ? (raw as string[]).filter((x) => typeof x === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+/*
+ * Empezar de cero = un `session_id` nuevo, no un borrado.
+ *
+ * `<schema>.conversations.session_id` es UNIQUE y `abi.tenant_log_message` hace
+ * upsert sobre esa llave: un uuid nuevo abre una conversación nueva y la
+ * anterior queda intacta en la base, con sus mensajes y su contacto. El
+ * checkpointer del cerebro también va por `thread_id = session_id`, así que el
+ * hilo nuevo arranca sin arrastrar el contexto del viejo.
+ *
+ * El uuid retirado se guarda porque ES la llave para volver: la conversación
+ * seguiría en la base sin él, pero nadie podría volver a nombrarla.
+ */
+function guardarSid(slug: string, actual: string, retirado: string): void {
+  try {
+    const lista = getPrevias(slug).filter((x) => x !== retirado && x !== actual)
+    localStorage.setItem(prevKey(slug), JSON.stringify([retirado, ...lista].slice(0, 20)))
+    localStorage.setItem(sidKey(slug), actual)
+  } catch {
+    /* sin almacenamiento el chat sigue: la conversación vive lo que la pestaña */
+  }
+}
+
+type Resumen = {
+  session_id: string
+  created_at: string
+  last_message_at: string
+  messages: number
+  title: string | null
+}
+
+const fecha = (iso: string) =>
+  new Date(iso).toLocaleDateString('es-MX', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 
 export function TenantChat({
   slug,
@@ -53,6 +103,10 @@ export function TenantChat({
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [humanMode, setHumanMode] = useState(false)
+  const [confirmandoNueva, setConfirmandoNueva] = useState(false)
+  const [panelAbierto, setPanelAbierto] = useState(false)
+  const [resumenes, setResumenes] = useState<Resumen[] | null>(null)
+  const [hayPrevias, setHayPrevias] = useState(false)
   const sidRef = useRef('')
   const busyRef = useRef(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -84,6 +138,7 @@ export function TenantChat({
 
   useEffect(() => {
     sidRef.current = getSid(slug)
+    setHayPrevias(getPrevias(slug).length > 0)
     void syncHistory()
   }, [slug, syncHistory])
 
@@ -99,6 +154,56 @@ export function TenantChat({
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [messages, busy])
+
+  /* La confirmación se retira sola: un botón que se queda armado se aprieta por
+     accidente al volver a la pestaña. */
+  useEffect(() => {
+    if (!confirmandoNueva) return
+    const t = setTimeout(() => setConfirmandoNueva(false), 5000)
+    return () => clearTimeout(t)
+  }, [confirmandoNueva])
+
+  const nuevaConversacion = () => {
+    setConfirmandoNueva(false)
+    if (busy) return
+    const retirado = sidRef.current
+    sidRef.current = crypto.randomUUID()
+    guardarSid(slug, sidRef.current, retirado)
+    setHayPrevias(true)
+    setResumenes(null)
+    setMessages([])
+    setHumanMode(false)
+    setDraft('')
+  }
+
+  /* Retomar: el hilo elegido pasa a ser el actual y el que estaba se guarda.
+     No hay borrado en ningún sentido — solo se mueve cuál está en pantalla. */
+  const retomar = (destino: string) => {
+    setPanelAbierto(false)
+    if (busy || destino === sidRef.current) return
+    const retirado = sidRef.current
+    sidRef.current = destino
+    guardarSid(slug, destino, retirado)
+    setHayPrevias(getPrevias(slug).length > 0)
+    setResumenes(null)
+    setMessages([])
+    setHumanMode(false)
+    setDraft('')
+    void syncHistory()
+  }
+
+  const abrirPanel = async () => {
+    setPanelAbierto(true)
+    setResumenes(null)
+    const ids = [sidRef.current, ...getPrevias(slug)]
+    try {
+      const r = await fetch(`/api/t/${slug}/conversations?ids=${ids.join(',')}`)
+      const data = (await r.json()) as { conversations?: Resumen[] }
+      setResumenes(data.conversations ?? [])
+    } catch {
+      setResumenes([])
+    }
+  }
 
   const send = (e: React.FormEvent) => {
     e.preventDefault()
@@ -188,7 +293,7 @@ export function TenantChat({
         style={{ borderColor: A.rule, backgroundColor: A.blockUp }}
       >
         <AbiAsterisk className="h-5 w-5 shrink-0" />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold" style={{ color: A.text }}>
             {botName}
           </p>
@@ -199,11 +304,118 @@ export function TenantChat({
             {status}
           </p>
         </div>
+
+        {/* Conversaciones anteriores. Solo si este navegador conoce alguna. */}
+        {hayPrevias && !confirmandoNueva && (
+          <button
+            type="button"
+            onClick={() => (panelAbierto ? setPanelAbierto(false) : void abrirPanel())}
+            title="Ver conversaciones anteriores"
+            className="mr-px shrink-0 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-[filter] hover:brightness-125"
+            style={{
+              backgroundColor: panelAbierto ? A.accent : A.blockHi,
+              color: panelAbierto ? A.ink : A.textMuted,
+              border: `1px solid ${panelAbierto ? A.accent : A.rule}`,
+            }}
+          >
+            Anteriores
+          </button>
+        )}
+
+        {/* Empezar de nuevo. Aparece solo con plática andando, y pide
+            confirmación: cambia el hilo que está en pantalla. */}
+        {hasUserMessages &&
+          (confirmandoNueva ? (
+            <div className="flex shrink-0 items-center gap-px">
+              <button
+                type="button"
+                onClick={nuevaConversacion}
+                className="px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-opacity hover:opacity-90"
+                style={{ backgroundColor: A.accent, color: A.ink }}
+              >
+                Empezar
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmandoNueva(false)}
+                className="px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-[filter] hover:brightness-125"
+                style={{ backgroundColor: A.blockHi, color: A.textMuted, border: `1px solid ${A.rule}` }}
+              >
+                Cancelar
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmandoNueva(true)}
+              disabled={busy}
+              title="Empezar una conversación nueva"
+              className="shrink-0 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-[filter] hover:brightness-125 disabled:opacity-40"
+              style={{ backgroundColor: A.blockHi, color: A.textMuted, border: `1px solid ${A.rule}` }}
+            >
+              Nueva
+            </button>
+          ))}
       </div>
 
       {/* El cuerpo. Vacío = saludo centrado (tipo assistant-ui); con plática =
           hilo de burbujas cuadradas con scroll interno. */}
-      {!hasUserMessages ? (
+      {panelAbierto ? (
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+          <p
+            className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em]"
+            style={{ color: A.textFaint }}
+          >
+            Tus conversaciones
+          </p>
+
+          {resumenes === null && (
+            <p className="text-[13px]" style={{ color: A.textMuted }}>
+              Cargando…
+            </p>
+          )}
+
+          {resumenes?.length === 0 && (
+            <p className="text-[13px]" style={{ color: A.textMuted }}>
+              Todavía no hay conversaciones guardadas en este dispositivo.
+            </p>
+          )}
+
+          <div className="flex flex-col gap-px">
+            {resumenes?.map((c) => {
+              const actual = c.session_id === sidRef.current
+              return (
+                <button
+                  key={c.session_id}
+                  type="button"
+                  onClick={() => retomar(c.session_id)}
+                  className="flex flex-col gap-1 px-4 py-3 text-left transition-[filter] hover:brightness-125"
+                  style={{
+                    backgroundColor: A.blockHi,
+                    border: `1px solid ${actual ? A.accent : A.rule}`,
+                  }}
+                >
+                  <span className="text-[13.5px] leading-snug" style={{ color: A.text }}>
+                    {c.title ?? 'Conversación sin pregunta'}
+                  </span>
+                  <span
+                    className="font-mono text-[9px] uppercase tracking-[0.16em]"
+                    style={{ color: actual ? A.accent : A.textFaint }}
+                  >
+                    {actual ? 'en pantalla · ' : ''}
+                    {fecha(c.last_message_at)} · {c.messages}{' '}
+                    {c.messages === 1 ? 'mensaje' : 'mensajes'}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          <p className="mt-4 text-[12px] leading-relaxed" style={{ color: A.textFaint }}>
+            Se guardan en este navegador. Desde otro dispositivo no aparecen.
+          </p>
+        </div>
+      ) : !hasUserMessages ? (
         <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
           <AbiAsterisk className="h-8 w-8 opacity-90" />
           <p className="max-w-md text-lg font-semibold leading-snug sm:text-xl" style={{ color: A.text }}>
@@ -243,7 +455,7 @@ export function TenantChat({
       )}
 
       {/* Arranques pegados al chat bar, como en el constructor del portal. */}
-      {!hasUserMessages && !busy && suggestions.length > 0 && (
+      {!panelAbierto && !hasUserMessages && !busy && suggestions.length > 0 && (
         <div className="flex flex-wrap gap-px px-5 pb-2">
           {suggestions.map((q) => (
             <button
@@ -260,6 +472,7 @@ export function TenantChat({
       )}
 
       {/* Composer del sistema: input cuadrado + ENVIAR lima en mono. */}
+      {!panelAbierto && (
       <form onSubmit={send} className="flex gap-px p-5 pt-3">
         <input
           value={draft}
@@ -280,6 +493,7 @@ export function TenantChat({
           Enviar
         </button>
       </form>
+      )}
     </div>
   )
 }

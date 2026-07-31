@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { MessageCircle, Send, X } from 'lucide-react'
+import { MessageCircle, Send, SquarePen, X } from 'lucide-react'
 
 import { AbiBee } from '@/components/brand/AbiBee'
 import { Linkify } from '@/components/chat/Linkify'
@@ -13,8 +13,9 @@ import { cn } from '@/lib/utils'
 
 export function ChatWidget() {
   const { isOpen, openChat, closeChat, consumePendingMessage } = useChat()
-  const { messages, send, isThinking } = useChatSession()
+  const { messages, send, isThinking, reset } = useChatSession()
   const [draft, setDraft] = useState('')
+  const [confirmandoNueva, setConfirmandoNueva] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -29,6 +30,14 @@ export function ChatWidget() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [messages, isThinking])
+
+  useEffect(() => {
+    if (!confirmandoNueva) return
+    const t = setTimeout(() => setConfirmandoNueva(false), 5000)
+    return () => clearTimeout(t)
+  }, [confirmandoNueva])
+
+  const hayPlatica = messages.some((m) => m.role === 'user')
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,9 +74,36 @@ export function ChatWidget() {
                 </p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" aria-label="Cerrar chat" onClick={closeChat}>
-              <X className="size-4.5" />
-            </Button>
+            <div className="flex items-center gap-1">
+              {hayPlatica &&
+                (confirmandoNueva ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-8 px-2.5 text-xs"
+                    onClick={() => {
+                      setConfirmandoNueva(false)
+                      reset()
+                    }}
+                  >
+                    ¿Empezar de nuevo?
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Nueva conversación"
+                    title="Nueva conversación"
+                    disabled={isThinking}
+                    onClick={() => setConfirmandoNueva(true)}
+                  >
+                    <SquarePen className="size-4.5" />
+                  </Button>
+                ))}
+              <Button variant="ghost" size="icon" aria-label="Cerrar chat" onClick={closeChat}>
+                <X className="size-4.5" />
+              </Button>
+            </div>
           </div>
 
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
