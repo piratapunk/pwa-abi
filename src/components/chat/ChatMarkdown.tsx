@@ -1,21 +1,60 @@
 import { Linkify } from '@/components/chat/Linkify'
 
-/* markdown ligero para burbujas de chat: **negritas**, viñetas y saltos de
-   línea — sin librerías; todo lo demás se muestra tal cual (contenido = dato) */
+/* markdown ligero para burbujas de chat: **negritas**, [enlaces](url),
+   ![imágenes](url), viñetas y saltos de línea — sin librerías; todo lo demás se
+   muestra tal cual (contenido = dato) */
+
+/* Solo https, y solo lo que sirve como recurso web. Un esquema raro
+   (javascript:, data:) se imprime como texto en vez de volverse navegable. */
+const seguro = (url: string) => /^https:\/\/[^\s]+$/i.test(url)
+
+const MARCAS = /(!?\[[^\]\n]*\]\([^)\s]+\)|\*\*[^*]+\*\*)/g
+const ENLACE = /^(!?)\[([^\]\n]*)\]\(([^)\s]+)\)$/
 
 function Inline({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  const parts = text.split(MARCAS)
   return (
     <>
-      {parts.map((part, i) =>
-        part.startsWith('**') && part.endsWith('**') && part.length > 4 ? (
-          <strong key={i} className="font-semibold">
-            <Linkify text={part.slice(2, -2)} />
-          </strong>
-        ) : (
-          <Linkify key={i} text={part} />
-        )
-      )}
+      {parts.map((part, i) => {
+        const md = ENLACE.exec(part)
+        if (md) {
+          const [, bang, etiqueta, url] = md
+          if (!seguro(url)) return <span key={i}>{part}</span>
+          /* Imagen: el bot manda la foto de la unidad, no su URL cruda. */
+          if (bang) {
+            return (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={i}
+                src={url}
+                alt={etiqueta}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                className="my-1 block w-full max-w-xs rounded"
+              />
+            )
+          }
+          return (
+            <a
+              key={i}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium underline underline-offset-2 hover:opacity-80"
+            >
+              {etiqueta || url}
+            </a>
+          )
+        }
+        if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+          return (
+            <strong key={i} className="font-semibold">
+              <Linkify text={part.slice(2, -2)} />
+            </strong>
+          )
+        }
+        return <Linkify key={i} text={part} />
+      })}
     </>
   )
 }
