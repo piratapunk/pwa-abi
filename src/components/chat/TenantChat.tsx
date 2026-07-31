@@ -103,7 +103,6 @@ export function TenantChat({
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [humanMode, setHumanMode] = useState(false)
-  const [confirmandoNueva, setConfirmandoNueva] = useState(false)
   const [panelAbierto, setPanelAbierto] = useState(false)
   const [resumenes, setResumenes] = useState<Resumen[] | null>(null)
   const [hayPrevias, setHayPrevias] = useState(false)
@@ -155,16 +154,11 @@ export function TenantChat({
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [messages, busy])
 
-  /* La confirmación se retira sola: un botón que se queda armado se aprieta por
-     accidente al volver a la pestaña. */
-  useEffect(() => {
-    if (!confirmandoNueva) return
-    const t = setTimeout(() => setConfirmandoNueva(false), 5000)
-    return () => clearTimeout(t)
-  }, [confirmandoNueva])
-
+  /* Sin confirmación a propósito: la conversación anterior no se pierde, queda
+     a un clic en "Anteriores". Un paso extra para algo reversible solo estorba
+     — y la primera versión, con confirmación que expiraba sola, dejaba al
+     usuario apretando un botón que ya se había desarmado. */
   const nuevaConversacion = () => {
-    setConfirmandoNueva(false)
     if (busy) return
     const retirado = sidRef.current
     sidRef.current = crypto.randomUUID()
@@ -306,7 +300,7 @@ export function TenantChat({
         </div>
 
         {/* Conversaciones anteriores. Solo si este navegador conoce alguna. */}
-        {hayPrevias && !confirmandoNueva && (
+        {hayPrevias && (
           <button
             type="button"
             onClick={() => (panelAbierto ? setPanelAbierto(false) : void abrirPanel())}
@@ -322,40 +316,19 @@ export function TenantChat({
           </button>
         )}
 
-        {/* Empezar de nuevo. Aparece solo con plática andando, y pide
-            confirmación: cambia el hilo que está en pantalla. */}
-        {hasUserMessages &&
-          (confirmandoNueva ? (
-            <div className="flex shrink-0 items-center gap-px">
-              <button
-                type="button"
-                onClick={nuevaConversacion}
-                className="px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-opacity hover:opacity-90"
-                style={{ backgroundColor: A.accent, color: A.ink }}
-              >
-                Empezar
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmandoNueva(false)}
-                className="px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-[filter] hover:brightness-125"
-                style={{ backgroundColor: A.blockHi, color: A.textMuted, border: `1px solid ${A.rule}` }}
-              >
-                Cancelar
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setConfirmandoNueva(true)}
-              disabled={busy}
-              title="Empezar una conversación nueva"
-              className="shrink-0 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-[filter] hover:brightness-125 disabled:opacity-40"
-              style={{ backgroundColor: A.blockHi, color: A.textMuted, border: `1px solid ${A.rule}` }}
-            >
-              Nueva
-            </button>
-          ))}
+        {/* Empezar de nuevo. Solo con plática andando. */}
+        {hasUserMessages && (
+          <button
+            type="button"
+            onClick={nuevaConversacion}
+            disabled={busy}
+            title="Empezar una conversación nueva"
+            className="shrink-0 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-[filter] hover:brightness-125 disabled:opacity-40"
+            style={{ backgroundColor: A.blockHi, color: A.textMuted, border: `1px solid ${A.rule}` }}
+          >
+            Nueva
+          </button>
+        )}
       </div>
 
       {/* El cuerpo. Vacío = saludo centrado (tipo assistant-ui); con plática =

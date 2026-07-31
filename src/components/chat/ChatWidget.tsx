@@ -15,7 +15,6 @@ export function ChatWidget() {
   const { isOpen, openChat, closeChat, consumePendingMessage } = useChat()
   const { messages, send, isThinking, reset } = useChatSession()
   const [draft, setDraft] = useState('')
-  const [confirmandoNueva, setConfirmandoNueva] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -30,12 +29,6 @@ export function ChatWidget() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [messages, isThinking])
-
-  useEffect(() => {
-    if (!confirmandoNueva) return
-    const t = setTimeout(() => setConfirmandoNueva(false), 5000)
-    return () => clearTimeout(t)
-  }, [confirmandoNueva])
 
   const hayPlatica = messages.some((m) => m.role === 'user')
 
@@ -75,31 +68,18 @@ export function ChatWidget() {
               </div>
             </div>
             <div className="flex items-center gap-1">
-              {hayPlatica &&
-                (confirmandoNueva ? (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="h-8 px-2.5 text-xs"
-                    onClick={() => {
-                      setConfirmandoNueva(false)
-                      reset()
-                    }}
-                  >
-                    ¿Empezar de nuevo?
-                  </Button>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Nueva conversación"
-                    title="Nueva conversación"
-                    disabled={isThinking}
-                    onClick={() => setConfirmandoNueva(true)}
-                  >
-                    <SquarePen className="size-4.5" />
-                  </Button>
-                ))}
+              {hayPlatica && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Nueva conversación"
+                  title="Nueva conversación"
+                  disabled={isThinking}
+                  onClick={reset}
+                >
+                  <SquarePen className="size-4.5" />
+                </Button>
+              )}
               <Button variant="ghost" size="icon" aria-label="Cerrar chat" onClick={closeChat}>
                 <X className="size-4.5" />
               </Button>
