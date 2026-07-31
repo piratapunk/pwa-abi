@@ -21,7 +21,7 @@ export function ThemeToggle() {
       document.documentElement.removeAttribute('data-theme')
     }
     try {
-      localStorage.setItem('necta-theme', next ? 'light' : 'dark')
+      localStorage.setItem('abi-theme', next ? 'light' : 'dark')
     } catch {}
   }, [light])
 

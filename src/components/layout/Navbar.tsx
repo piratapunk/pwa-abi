@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 
-import { NectaWordmark } from '@/components/brand/NectaMark'
+import { AbiWordmark } from '@/components/brand/AbiMark'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { useChat } from '@/components/chat/ChatContext'
@@ -25,7 +25,7 @@ export function Navbar() {
     <header className="glass sticky top-0 z-40 border-b">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" aria-label="Abi — inicio">
-          <NectaWordmark />
+          <AbiWordmark />
         </Link>
 
         <div className="hidden items-center gap-6 md:flex">

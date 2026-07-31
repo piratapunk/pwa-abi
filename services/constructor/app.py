@@ -114,7 +114,7 @@ MACHOTES = {
     },
 }
 
-REFINER_SYSTEM = """Eres el diseñador de personalidades de asistentes de NectaCore. Recibes la información de un negocio, sus preferencias de personalidad (ya convertidas en lineamientos) y notas libres del dueño. Tu trabajo: escribir el SYSTEM PROMPT definitivo para el asistente de ESE negocio.
+REFINER_SYSTEM = """Eres el diseñador de personalidades de asistentes de Abi, el producto de Agave Systems. Recibes la información de un negocio, sus preferencias de personalidad (ya convertidas en lineamientos) y notas libres del dueño. Tu trabajo: escribir el SYSTEM PROMPT definitivo para el asistente de ESE negocio.
 
 El prompt que escribas debe (en este orden):
 1. Definir la identidad: nombre del asistente, negocio, giro — con una frase de carácter que lo haga sentir único de ese negocio (no genérico).

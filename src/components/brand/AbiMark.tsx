@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-export function NectaMark({ className }: { className?: string }) {
+export function AbiMark({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 64 64"
@@ -21,12 +21,12 @@ export function NectaMark({ className }: { className?: string }) {
   )
 }
 
-export function NectaWordmark({ className }: { className?: string }) {
+export function AbiWordmark({ className }: { className?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-2', className)}>
-      <NectaMark />
+      <AbiMark />
       <span className="font-logo text-xl font-bold tracking-tight text-text">
-        Necta<span className="text-accent">Core</span>
+        Abi
       </span>
     </span>
   )

@@ -55,7 +55,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-const themeBootstrap = `document.documentElement.classList.add('js');try{var t=localStorage.getItem('necta-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}`
+const themeBootstrap = `document.documentElement.classList.add('js');try{var t=localStorage.getItem('abi-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}`
 
 export default function RootLayout({
   children,

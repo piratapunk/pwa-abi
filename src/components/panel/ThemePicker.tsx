@@ -25,7 +25,7 @@ export function ThemePicker() {
       document.documentElement.removeAttribute('data-theme')
     }
     try {
-      localStorage.setItem('necta-theme', next)
+      localStorage.setItem('abi-theme', next)
     } catch {}
   }
 

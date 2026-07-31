@@ -63,7 +63,7 @@ const STAGE_CELLS: Record<Stage, number> = {
 }
 
 function getBuilderSession(): string {
-  const key = 'necta_builder_session'
+  const key = 'abi_builder_session'
   try {
     let sid = localStorage.getItem(key)
     if (!sid) {
@@ -125,7 +125,7 @@ export function ConstructorChat() {
   useEffect(() => {
     sidRef.current = getBuilderSession()
     try {
-      const built = localStorage.getItem(`necta_built_${sidRef.current}`)
+      const built = localStorage.getItem(`abi_built_${sidRef.current}`)
       if (built) {
         setBotUrl(built)
         setStage('construido')
@@ -141,7 +141,7 @@ export function ConstructorChat() {
           setBotUrl(url)
           setStage('construido')
           try {
-            localStorage.setItem(`necta_built_${sidRef.current}`, url)
+            localStorage.setItem(`abi_built_${sidRef.current}`, url)
           } catch {}
         }
       })
@@ -333,7 +333,7 @@ export function ConstructorChat() {
       if (data.provisioned?.subdomain) {
         const url = `https://${data.provisioned.subdomain}`
         try {
-          localStorage.setItem(`necta_built_${sidRef.current}`, url)
+          localStorage.setItem(`abi_built_${sidRef.current}`, url)
         } catch {}
         if (data.claimed) setClaimed(true)
         setBuilding(true)

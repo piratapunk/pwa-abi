@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { NectaWordmark } from '@/components/brand/NectaMark'
+import { AbiWordmark } from '@/components/brand/AbiMark'
 
 export function Footer() {
   return (
@@ -8,7 +8,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <div className="grid gap-10 md:grid-cols-3">
           <div className="space-y-3">
-            <NectaWordmark />
+            <AbiWordmark />
             <p className="max-w-xs text-sm text-text-muted">
               La colmena de asistentes para tu negocio. Tú traes lo que sabes;
               las obreras lo vuelven trabajo hecho.

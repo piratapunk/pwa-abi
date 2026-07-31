@@ -49,7 +49,7 @@ export function CatalogView({
   catalog: CatalogGroup[]
   builderSessionId?: string
 }) {
-  const storageKey = `necta:cart:${builderSessionId ?? 'anon'}`
+  const storageKey = `abi:cart:${builderSessionId ?? 'anon'}`
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [step, setStep] = useState<Step>('browse')
   const [hydrated, setHydrated] = useState(false)

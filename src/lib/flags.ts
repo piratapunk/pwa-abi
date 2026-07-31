@@ -17,7 +17,7 @@ const truthy = (v?: string) =>
 
 export const FEATURES = {
   /** Cuentas, portal (/inicio, /mis-bots), panel por bot y "ligar bot a mi cuenta". */
-  selfServe: truthy(process.env.NEXT_PUBLIC_NECTA_SELF_SERVE),
+  selfServe: truthy(process.env.NEXT_PUBLIC_ABI_SELF_SERVE),
   /** Auto-conexión del WhatsApp del cliente desde el panel. */
-  whatsappSelfConnect: truthy(process.env.NEXT_PUBLIC_NECTA_WHATSAPP_SELF_CONNECT),
+  whatsappSelfConnect: truthy(process.env.NEXT_PUBLIC_ABI_WHATSAPP_SELF_CONNECT),
 } as const

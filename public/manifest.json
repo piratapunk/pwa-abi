@@ -1,6 +1,6 @@
 {
-  "name": "NectaCore",
-  "short_name": "NectaCore",
+  "name": "Abi — Agave Systems",
+  "short_name": "Abi",
   "description": "La fábrica de asistentes para tu negocio",
   "start_url": "/",
   "display": "standalone",
@@ -9,6 +9,6 @@
   "orientation": "any",
   "icons": [
     { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "/brand/nectacore-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    { "src": "/brand/abi-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
   ]
 }

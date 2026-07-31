@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Plus } from 'lucide-react'
 
-import { NectaWordmark } from '@/components/brand/NectaMark'
+import { AbiWordmark } from '@/components/brand/AbiMark'
 import { BackButton } from '@/components/panel/BackButton'
 import { MisBotsNav } from '@/components/panel/PanelNav'
 import { UserMenu } from '@/components/panel/UserMenu'
@@ -41,7 +41,7 @@ export default async function MisBotsLayout({
     <div className="flex min-h-dvh">
       <aside className="hidden w-60 shrink-0 flex-col border-r bg-surface/60 p-4 md:flex">
         <Link href="/inicio" className="px-2">
-          <NectaWordmark />
+          <AbiWordmark />
         </Link>
 
         <MisBotsNav />
@@ -85,7 +85,7 @@ export default async function MisBotsLayout({
         <div className="border-b bg-surface/40 px-4 py-3 md:hidden">
           <div className="flex items-center justify-between">
             <Link href="/inicio">
-              <NectaWordmark />
+              <AbiWordmark />
             </Link>
             <form action="/api/auth/signout" method="post">
               <button type="submit" className="text-xs text-text-muted">

@@ -11,7 +11,7 @@ export type ChatMessage = {
   error?: boolean
 }
 
-const SID_KEY = 'necta_chat_sid'
+const SID_KEY = 'abi_chat_sid'
 const GREETING =
   'Hola, soy Abi 🐝 Cuéntame, ¿a qué se dedica tu negocio? De ahí te armo tu asistente.'
 

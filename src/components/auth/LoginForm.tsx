@@ -20,7 +20,7 @@ export function LoginForm() {
          reclamar, el login normal también lo liga */
       let builderSessionId: string | null = null
       try {
-        builderSessionId = localStorage.getItem('necta_builder_session')
+        builderSessionId = localStorage.getItem('abi_builder_session')
       } catch {}
       const res = await fetch('/api/auth/request-link', {
         method: 'POST',

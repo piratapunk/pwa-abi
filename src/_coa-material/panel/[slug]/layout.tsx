@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { NectaWordmark } from '@/components/brand/NectaMark'
+import { AbiWordmark } from '@/components/brand/AbiMark'
 import { BackButton } from '@/components/panel/BackButton'
 import { PanelNav } from '@/components/panel/PanelNav'
 import { UserMenu } from '@/components/panel/UserMenu'
@@ -39,7 +39,7 @@ export default async function PanelLayout({
     <div className="flex min-h-dvh">
       <aside className="hidden w-60 shrink-0 flex-col border-r bg-surface/60 p-4 md:flex">
         <Link href="/inicio" className="px-2">
-          <NectaWordmark />
+          <AbiWordmark />
         </Link>
         <Link
           href="/mis-bots"
