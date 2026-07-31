@@ -11,7 +11,11 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
+      /* https: abierto solo para imágenes: los bots enseñan producto (autos,
+         menú, catálogo) alojado donde el negocio ya lo tiene publicado, y una
+         lista blanca de hosts se rompería con el siguiente tenant. Una imagen
+         no ejecuta nada; script-src y connect-src siguen cerrados. */
+      "img-src 'self' data: blob: https:",
       "font-src 'self'",
       "connect-src 'self' https://cloudflareinsights.com",
       "frame-src https://challenges.cloudflare.com",
