@@ -19,7 +19,7 @@ import {
 } from '@/lib/turnstile'
 
 /*
- * Proxy al agente del Constructor (serv-necta-constructor, Strands).
+ * Proxy al agente del Constructor (abi-constructor, Strands).
  * El agente mantiene la conversación por builder_session_id; aquí solo
  * viven los guardrails y la firma del canal.
  */

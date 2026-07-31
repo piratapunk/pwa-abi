@@ -1,6 +1,6 @@
 # Pendientes — seguimiento
 
-> Backlog operativo de nectacore.com. Se actualiza al cerrar o descubrir pendientes.
+> Backlog operativo de Abi (abi.agavesysmx.com). Se actualiza al cerrar o descubrir pendientes.
 > Contexto: `FACTORY-ARCHITECTURE.md`, `CAPACITY-EXPO.md`, `ROADMAP.md`.
 > Última revisión: 2026-07-17 (segunda pasada — cerrados S1, S2, S4, S5, O3, O4, P6 y parte de P1).
 

@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 
 /*
- * NectaCore / Abi design tokens — miel/ámbar sobre carbón cálido.
+ * Abi design tokens — miel/ámbar sobre carbón cálido.
  * Dark es el tema por defecto; light es first-class vía [data-theme="light"].
  * Reglas de la casa:
  *  - nunca hardcodear fg/bg en componentes — siempre tokens.

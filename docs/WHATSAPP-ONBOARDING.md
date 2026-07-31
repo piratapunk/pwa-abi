@@ -5,7 +5,7 @@
 > (idempotente: adopta perfil existente si el nombre ya está) → **Embedded Signup real de
 > Meta** (verificado E2E hasta la URL de OAuth con los 4 scopes) → callback firmado
 > (state HMAC) → `abi.set_tenant_channel`. El loop de mensajes también está vivo:
-> webhook `necta-wa-inbound` registrado en el canal (message.received, firmado) → n8n
+> webhook `abi-wa-inbound` registrado en el canal (message.received, firmado) → n8n
 > verifica firma en Postgres → mapea accountId→tenant → brain con la KB del tenant →
 > responde vía inbox API → todo logueado en el schema del tenant (probado sintético;
 > lo único pendiente de validar con un número físico real es el tramo Meta→escaneo→primer

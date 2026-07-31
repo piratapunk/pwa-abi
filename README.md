@@ -21,12 +21,14 @@ Durable Object) → demo-brain (n8n) → panel CRM → canal Zernio. Ver `resh-z
 
 - **Producción completa en `vps-prod`** (desde 2026-07-22): apps Coolify `necta-core-web-vpsprod`
   (puerto 3002) y `necta-constructor-vpsprod` (3003).
-- **BD dedicada** `supabase-necta-prod` — API `https://db-necta-prod.piratapunk.com` (ya no el
-  Supabase compartido). Los schemas de tenants `t_*` + roles `t_*_app` viven ahí; la app entra
-  con el rol least-privilege `abi_app` vía pooler (user `abi_app.necta`, sin DELETE).
-- **Ingress por Cloudflare Tunnel `vps-prod`**: nectacore.com/www + wildcard `*.nectacore.com`
-  (tenants) y necta-constructor.piratapunk.com como CNAME proxied (sin Traefik ni puertos
-  públicos). Page Rules BIC-off en `nectacore.com/api/*` y `necta-constructor.piratapunk.com/*`.
+- **BD dedicada** `supabase-abi-prod` — API `https://db-abi-prod.piratapunk.com` (ya no el
+  Supabase compartido). Los schemas de tenants + roles viven ahí; la app entra
+  con el rol least-privilege `abi_app` vía pooler (user `abi_app.abi`, sin DELETE).
+- **Ingress por Cloudflare Tunnel `vps-prod`**: abi.agavesysmx.com + tenants
+  `<slug>-abi-chat.agavesysmx.com` (wildcard) y abi-constructor.piratapunk.com como CNAME proxied
+  (sin Traefik ni puertos públicos). Page Rules BIC-off en `abi.agavesysmx.com/api/*` y
+  `abi-constructor.piratapunk.com/*`. (nectacore.com ya solo responde 301 de Cloudflare; su
+  correo sigue vivo.)
 - **n8n**: los 3 webhooks usan la URL pública `https://n8n.piratapunk.com/webhook/…` (la interna
   `http://n8n:5678` ya no aplica — n8n sigue en vps-ops).
 - **Stripe**: cuenta propia "NectaCore".
@@ -35,16 +37,17 @@ Durable Object) → demo-brain (n8n) → panel CRM → canal Zernio. Ver `resh-z
 
 ## Estado
 
-🟢 **Landing en producción** — [nectacore.com](https://nectacore.com): la web corporativa de
-**NectaCore** (la marca-empresa; ver `brand/nectacore/`) promociona a Abi como su producto
-estrella, con el chat central conectado al brain (n8n `necta-web-chat` → Gemini) y persistencia
-en el schema `abi`. El Constructor (wizard) es la siguiente fase — ver `docs/ROADMAP.md`.
+🟢 **En producción bajo Agave (ADR 010)** — la página de producto vive en
+[agavesysmx.com/producto/abi](https://agavesysmx.com/producto/abi); esta app sirve
+`abi.agavesysmx.com` (APIs `/api/*` — chat, webhook de Stripe) y los bots de tenant en
+`<slug>-abi-chat.agavesysmx.com`. El chat usa el brain (n8n `abi-web-chat` → Gemini) con
+persistencia en el schema `abi`. (`brand/nectacore/` documenta la marca-empresa retirada.)
 
 **Stack actual**: Next.js 16 App Router + Tailwind v4 (tokens oklch, dark-first) + shadcn/ui,
 Docker standalone en Coolify (app `necta-core-web-vpsprod` en `vps-prod`). Rutas API: `/api/chat` (proxy con
 guardrails → webhook n8n) y `/api/lead` (rol `abi_app` → `abi.leads`). Env runtime:
 `ABI_DATABASE_URL`, `ABI_CHAT_N8N_WEBHOOK_URL`, `NEXT_PUBLIC_SITE_URL`, `SITE_URL`
-(vault: `secrets/projects/necta.env`). Español-only por ahora; el espejo `/en` queda para después.
+(vault: `secrets/projects/abi.env`). Español-only por ahora; el espejo `/en` queda para después.
 
 ## Arquitectura (resumen)
 
@@ -80,12 +83,12 @@ una fila en `agave_demo.bots` + `bot_config` + KB + funnel. El resto (canal, bra
 
 ## Convenciones (heredadas del workspace)
 
-- **DB**: schema `abi` self-contained en la instancia Supabase **dedicada** `supabase-necta-prod`
-  (`vps-prod`, API `db-necta-prod.piratapunk.com`). Nada en `public`. Un schema por proyecto; sin
+- **DB**: schema `abi` self-contained en la instancia Supabase **dedicada** `supabase-abi-prod`
+  (`vps-prod`, API `db-abi-prod.piratapunk.com`). Nada en `public`. Un schema por proyecto; sin
   FKs cruzadas.
-- **Deploy**: Coolify. DNS de infra `*.piratapunk.com`; la marca pública Abi usa su **propio
-  dominio** (nunca `agavesysmx.com` ni delata a Agave).
+- **Deploy**: Coolify. DNS de infra `*.piratapunk.com`; la app pública vive en
+  `abi.agavesysmx.com` (Abi es producto de Agave — ADR 010).
 - **Secrets**: vault `vps-core/secrets/*.env`, naming `ABI_<SCOPE>_<NAME>`.
 - **Commits**: una línea, sin trailer.
-- **Marca**: Abi es un producto **independiente**. Nada en la UI pública debe revelar que el
-  motor es el Agave Bot Suite / Zernio. Ver `brand/identity.md`.
+- **Marca**: Abi es el producto estrella de **Agave Systems** (ADR 010). Nada en la UI pública
+  debe revelar que el motor es el Agave Bot Suite / Zernio. Ver `brand/identity.md`.

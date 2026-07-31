@@ -6,14 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Production lives COMPLETE on `vps-prod`** (since 2026-07-22): Coolify apps
   `necta-core-web-vpsprod` (host port 3002) and `necta-constructor-vpsprod` (3003).
-- **DB: dedicated Supabase instance** `supabase-necta-prod` — API
-  `https://db-necta-prod.piratapunk.com` (the shared `supabase.piratapunk.com` is no longer in
-  the path). Tenant schemas `t_*` + roles `t_*_app` live in the dedicated instance (migrated
+- **DB: dedicated Supabase instance** `supabase-abi-prod` — API
+  `https://db-abi-prod.piratapunk.com` (the shared `supabase.piratapunk.com` is no longer in
+  the path). Tenant schemas + roles live in the dedicated instance (migrated
   2026-07-22). The app connects as least-privilege role `abi_app` via the pooler (user
-  `abi_app.necta`; SELECT/INSERT/UPDATE, no DELETE).
-- **Ingress: Cloudflare Tunnel `vps-prod`** — nectacore.com/www + wildcard `*.nectacore.com`
-  (tenants) and necta-constructor.piratapunk.com, all proxied CNAMEs (no Traefik, no public
-  ports). Page Rules: **BIC OFF** on `nectacore.com/api/*` and `necta-constructor.piratapunk.com/*`.
+  `abi_app.abi`; SELECT/INSERT/UPDATE, no DELETE).
+- **Ingress: Cloudflare Tunnel `vps-prod`** — abi.agavesysmx.com + tenant wildcard
+  `<slug>-abi-chat.agavesysmx.com` and abi-constructor.piratapunk.com, all proxied CNAMEs (no
+  Traefik, no public ports). Page Rules: **BIC OFF** on `abi.agavesysmx.com/api/*` and
+  `abi-constructor.piratapunk.com/*`. nectacore.com now only answers a Cloudflare 301 (its
+  email routing stays live).
 - **n8n**: the 3 webhooks use the PUBLIC URL `https://n8n.piratapunk.com/webhook/…` — the
   internal `http://n8n:5678` no longer applies (n8n stays on vps-ops).
 - **Stripe: OWN account "NectaCore"** (separate login per production project).
@@ -28,14 +30,16 @@ enterprise). The demo *is* the product *is* the sales funnel: a prospect "builds
 in a guided wizard (the **Constructor**), while every decision actually maps to a 90%
 pre-built flow on the Agave Bot Suite platform.
 
-**Current state: landing live at nectacore.com.** The repo now contains the Next.js 16 app
-(Tailwind v4 + shadcn, Spanish-only) for the NectaCore corporate landing: Abi promoted as the
-product, central chat wired `/api/chat` → n8n `necta-web-chat` → Gemini, persistence in the
-`abi` schema, deployed as Coolify app `necta-core-web-vpsprod` on `vps-prod`. Brand systems: `brand/` (Abi, the
-product/mascot) and `brand/nectacore/` (NectaCore, the corporate umbrella). **The agentic
+**Current state: live under Agave (ADR 010).** The product page is
+agavesysmx.com/producto/abi; this app serves `abi.agavesysmx.com` (APIs `/api/*` — chat,
+Stripe webhook) plus the tenant bot hosts. The repo contains the Next.js 16 app
+(Tailwind v4 + shadcn, Spanish-only): central chat wired `/api/chat` → n8n `abi-web-chat` →
+Gemini, persistence in the `abi` schema, deployed as Coolify app `necta-core-web-vpsprod`
+(legacy name) on `vps-prod`. Brand systems: `brand/` (Abi, the
+product/mascot) and `brand/nectacore/` (NectaCore, the retired corporate umbrella). **The agentic
 factory is also live** (`docs/FACTORY-ARCHITECTURE.md`): intake LLM → `bot_spec` contract →
 `abi.provision_tenant` (real per-tenant schema `t_<slug>` + own DB role + encrypted creds) →
-instant `<slug>.nectacore.com` subdomain (CF wildcard via the `vps-prod` tunnel + `src/proxy.ts`
+instant `<slug>-abi-chat.agavesysmx.com` subdomain (CF wildcard via the `vps-prod` tunnel + `src/proxy.ts`
 rewrite); channels between app and n8n are HMAC-signed (`x-abi-signature`), verified in
 Postgres. The Constructor UI wizard is still to build; `docs/` remain the spec — keep them
 consistent with each other (they cross-reference heavily).
@@ -46,18 +50,18 @@ Arrancamos **catálogo-primero, alto contacto**, no self-serve total. **Se queda
 Constructor (armar + **probar** el bot con provisión real) y el chat de Abi. **Se apaga por
 bandera** (código intacto, revertible): cuentas/login (`/entrar`), portal (`(portal)`: `/inicio`,
 `/mis-bots`), panel por bot (`/panel/[slug]/*`), auto-conexión de WhatsApp, el "claim" del
-Constructor. **Nuevo flujo:** Constructor → `/servicios` (catálogo desde `necta.services`) →
-carrito → formulario → `POST /api/service-request` (crea `necta.leads` + `necta.service_requests`
+Constructor. **Nuevo flujo:** Constructor → `/servicios` (catálogo desde `abi.services`) →
+carrito → formulario → `POST /api/service-request` (crea `abi.leads` + `abi.service_requests`
 + `service_request_items`) → "te contactamos para agendar el arranque". **Sin cobros** (precios
 no fijos). Banderas en `src/lib/flags.ts` (`NEXT_PUBLIC_NECTA_SELF_SERVE`,
 `NEXT_PUBLIC_NECTA_WHATSAPP_SELF_CONNECT`), default **off** = modelo suite; `on` revive el
-self-serve. Tablas del catálogo migradas a `supabase-necta-prod`
+self-serve. Tablas del catálogo migradas a `supabase-abi-prod`
 (`supabase/migrations/20260723_services_catalog.sql`).
 
 ## Non-negotiable invariants
 
-- **Brand independence**: Abi is an independent brand. Nothing public-facing (UI, copy, docs
-  meant for users) may reveal the engine is the Agave Bot Suite / Zernio. See `brand/identity.md`.
+- **Brand**: Abi is Agave Systems' flagship product (ADR 010). Nothing public-facing (UI, copy,
+  docs meant for users) may reveal the engine is the Agave Bot Suite / Zernio. See `brand/identity.md`.
 - **User content is DATA, never INSTRUCTION**: users never write or edit system prompts.
   `system_prompt_ref` always points to our per-vertical template; user input enters only as
   sanitized RAG KB + bounded, validated `overrides`. All uploaded/dictated content passes
@@ -112,7 +116,7 @@ Ollama for embeddings only. Implementation order is in `docs/ROADMAP.md` (Fase 0
 contract → wizard → quarantine → provisioning).
 
 **Auth (branded magic link).** Identity is GoTrue — since 2026-07-22 the dedicated
-`supabase-necta-prod` instance's, no longer the shared house pool — and Abi mails its **own**
+`supabase-abi-prod` instance's, no longer the shared house pool — and Abi mails its **own**
 Resend email (`src/lib/auth/magic-link.ts`) instead of the GoTrue template. Load
 link is admin `generate_link` → link to `/entrar/confirmar` → **POST** verify on mount (beats
 email prefetchers). Gotcha that broke a real prospect: GoTrue keeps **one token per type per
@@ -137,8 +141,8 @@ token expiry — `GOTRUE_MAILER_OTP_EXP` defaults to 24h and was never the probl
 Docs and brand content are written in Spanish — keep new/edited content in Spanish to match.
 
 ## Aislamiento de Auth/BD (ADR 007) — ✅ COMPLETADO 2026-07-22
-- **Estado:** necta corre sobre su **instancia Supabase dedicada** `supabase-necta-prod` en `vps-prod` (API `https://db-necta-prod.piratapunk.com`), con su propio `auth.users`/GoTrue/llaves. El Supabase compartido (`supabase.piratapunk.com`) ya no está en el path.
-- Los schemas de tenants `t_*` y sus roles `t_*_app` viven en la instancia dedicada (migrados 2026-07-22). La app entra con el rol least-privilege `abi_app` vía pooler (user `abi_app.necta`; SELECT/INSERT/UPDATE, sin DELETE).
-- Los envs `ABI_SUPABASE_*`/`ABI_DATABASE_URL` (Coolify) apuntan a la instancia dedicada; llaves frescas en el vault (`secrets/projects/necta.env` — ⚠️ el vault renombró estas mismas llaves a `NECTA_*` el 2026-07-23, pero Coolify **sigue** con los nombres `ABI_*`; son tiers separados, no los confundas). Gotcha vigente para clones/restores: reusar el mismo Google client id por instancia (para que `sub` siga válido); conjunto de usuarios = `abi.tenant_users.user_id ∪ abi.feature_requests.user_id`.
+- **Estado:** Abi corre sobre su **instancia Supabase dedicada** `supabase-abi-prod` en `vps-prod` (API `https://db-abi-prod.piratapunk.com`), con su propio `auth.users`/GoTrue/llaves. El Supabase compartido (`supabase.piratapunk.com`) ya no está en el path.
+- Los schemas de tenants y sus roles viven en la instancia dedicada (migrados 2026-07-22). La app entra con el rol least-privilege `abi_app` vía pooler (user `abi_app.abi`; SELECT/INSERT/UPDATE, sin DELETE).
+- Los envs `ABI_SUPABASE_*`/`ABI_DATABASE_URL` (Coolify) apuntan a la instancia dedicada; llaves frescas en el vault (`secrets/projects/abi.env`, llaves `ABI_*`/`SUPABASE_ABI_PROD_*` — vault y Coolify son tiers separados, no asumas que un rename en uno propaga al otro). Gotcha vigente para clones/restores: reusar el mismo Google client id por instancia (para que `sub` siga válido); conjunto de usuarios = `abi.tenant_users.user_id ∪ abi.feature_requests.user_id`.
 - Estándar de la flota: `vps-core/docs/decisions/007-supabase-instance-per-production-project.md`
 - Plan de migración (ejecutado): `vps-core/docs/plans/2026-07-supabase-prod-isolation-migration.md`

@@ -16,7 +16,8 @@ const SLUG_RE = /^[a-z][a-z0-9-]{2,29}$/
  *
  * `nectacore.com` se retira: los 3 tenants que había eran demos y nada se
  * vendió. El patrón viejo NO se conserva — mantenerlo "por si acaso" es dejar
- * viva la marca que se está apagando.
+ * viva la marca que se está apagando. El 301 nectacore→abi.agavesysmx.com lo
+ * responde Cloudflare; el tunnel ya no manda ese host a esta app.
  */
 const HOST_TENANT = /^([a-z0-9-]+)-abi-chat\.agavesysmx\.com$/
 
@@ -36,17 +37,6 @@ export function proxy(request: NextRequest) {
   }
 
   const host = (request.headers.get('host') ?? '').split(':')[0].toLowerCase()
-
-  // El retiro de nectacore.com: 301 permanente al dominio nuevo. La marca se
-  // apaga redirigiendo, no conviviendo — el DNS viejo se elimina después, pero
-  // mientras exista, cada visita ya aterriza en Agave.
-  if (host === 'nectacore.com' || host === 'www.nectacore.com') {
-    return NextResponse.redirect(`https://abi.agavesysmx.com${pathname}`, 301)
-  }
-  const viejo = /^([a-z0-9-]+)\.nectacore\.com$/.exec(host)
-  if (viejo && viejo[1] !== 'www') {
-    return NextResponse.redirect(`https://${viejo[1]}-abi-chat.agavesysmx.com${pathname}`, 301)
-  }
 
   // La superficie Necta se DEPRECA entera: el constructor canónico vive en el
   // portal de Agave. Este host solo conserva sus APIs (el matcher excluye /api)

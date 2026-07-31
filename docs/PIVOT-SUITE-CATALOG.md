@@ -41,7 +41,7 @@ configuración por el usuario todavía.
 5. **Envío** → se guarda como **lead + pedido de servicios**; pantalla de cierre:
    *"Listo — te contactamos para agendar el arranque."* No hay cobro.
 
-## Catálogo de servicios (fuente: `necta` schema, editable sin deploy)
+## Catálogo de servicios (fuente: `abi` schema, editable sin deploy)
 
 Fuente de verdad: reference interna `docs/agave_n8n_capacidades_referencia.pages` +
 `resh-zernio/capabilities/*`. **Regla de marca inviolable:** el copy público **no nombra el
@@ -63,17 +63,17 @@ Categorías (taxonomía derivada de las imágenes y la referencia):
 - **CRM** — contactos, conversaciones, embudo, citas (incluido con el asistente).
 - **Integraciones a la medida** — cobros, inventario, agenda, ERP; "funciones a la medida".
 
-## Modelo de datos (`necta`) — migración nueva
+## Modelo de datos (`abi`) — migración nueva
 
-Sin FKs cruzadas a otros esquemas; todo dentro de `necta` (convención del proyecto).
+Sin FKs cruzadas a otros esquemas; todo dentro de `abi` (convención del proyecto).
 
-- **`necta.services`** — catálogo. `id, slug (unique), category, name, tagline, description,
+- **`abi.services`** — catálogo. `id, slug (unique), category, name, tagline, description,
   icon, image_url, price_note, is_featured, sort, active, created_at, updated_at`.
-- **`necta.service_requests`** — el "pedido"/cotización, anónimo primero, ligado a
+- **`abi.service_requests`** — el "pedido"/cotización, anónimo primero, ligado a
   `builder_session_id` y (si aplica) `tenant_id`. `id, builder_session_id, tenant_id, lead_id,
   contact_name, contact_email, contact_phone, business, vertical, notes,
   status ('nuevo'|'contactado'|'agendado'|'ganado'|'perdido'), created_at`.
-- **`necta.service_request_items`** — renglones. `id, request_id, service_id, service_slug
+- **`abi.service_request_items`** — renglones. `id, request_id, service_id, service_slug
   (snapshot), service_name (snapshot), note, created_at`. El snapshot protege pedidos históricos
   ante cambios del catálogo.
 - **Seed** del catálogo con las categorías/servicios de arriba (copy de marca, precios no fijos).
@@ -99,7 +99,7 @@ Puntos de aplicación:
   `src/app/(site)/servicios/page.tsx` (+ `pedido`), `src/components/catalog/*` (grid, card,
   carrito, form), `src/app/api/service-request/route.ts`.
 - **Migración** `supabase/migrations/*_services_catalog.sql` (aplicar a la instancia dedicada
-  `supabase-necta-prod` vía `/supabase-migration`; **no** auto-aplicar a prod sin revisar).
+  `supabase-abi-prod` vía `/supabase-migration`; **no** auto-aplicar a prod sin revisar).
 - **Editar** `Navbar.tsx`, `BuildSuccessCard.tsx`, `(portal)/layout.tsx`,
   `panel/[slug]/layout.tsx`, `(site)/entrar/*`, rutas API a apagar, `PricingSection` (reencuadre
   a "se arma a la medida"), `.env.example`, `CLAUDE.md` (documentar el pivote).
@@ -109,7 +109,7 @@ Puntos de aplicación:
 1. `npm run build` / typecheck limpio.
 2. Con `NECTA_SELF_SERVE=off`: `/entrar`, `/mis-bots`, `/panel/x` redirigen a `/`; el nav no
    muestra "Entrar"; el Constructor arma+prueba y cierra con CTA a `/servicios`.
-3. `/servicios` lista el catálogo desde `necta.services`; agregar/quitar arma el carrito;
+3. `/servicios` lista el catálogo desde `abi.services`; agregar/quitar arma el carrito;
    `/servicios/pedido` envía y crea `service_requests` + `items` + `lead` (verificar con
    `mcp__piratapunk-supabase`).
 4. Con `NECTA_SELF_SERVE=on`: todo lo anterior vuelve a estar disponible (revertible).

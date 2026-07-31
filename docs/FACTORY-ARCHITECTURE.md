@@ -2,7 +2,7 @@
 
 > Estado: **en producción** (2026-07-17). Este doc describe lo construido: el pipeline que
 > convierte texto libre de un prospecto en un bot real con **schema propio en la base**,
-> **rol propio**, y **subdominio propio** `<slug>.nectacore.com` — en segundos y de forma
+> **rol propio**, y **subdominio propio** `<slug>-abi-chat.agavesysmx.com` — en segundos y de forma
 > idempotente. Complementa `ARCHITECTURE.md` (visión) y `SECURITY.md` (rieles de ingesta).
 
 ## 1. El pipeline completo
@@ -11,7 +11,7 @@
 texto libre (chat / form / dictado)
    │  POST /api/factory/intake         [rate limit · zod strict · honeypot]
    ▼
-n8n `necta-factory-intake`             [firma HMAC verificada EN POSTGRES]
+n8n `abi-factory-intake`               [firma HMAC verificada EN POSTGRES]
    │  Gemini extrae → JSON             [el texto del usuario es DATO, no instrucción;
    │  whitelist de claves + clamps      instrucciones embebidas se descartan]
    │  abi.factory_slugify() asigna slug (translitera, reserva www/api/admin/…, desambigua)
@@ -28,10 +28,10 @@ abi.provision_tenant(sesión, spec, master_key)     ← UNA transacción, SECURI
    ├─ KB inicial sanitizada (control chars fuera, 20k cap)
    └─ job `done` con resultado → reintentos devuelven lo mismo
    ▼
-https://<slug>.nectacore.com           [instantáneo: wildcard DNS + Cloudflare Tunnel, sin pasos por tenant]
+https://<slug>-abi-chat.agavesysmx.com [instantáneo: wildcard DNS + Cloudflare Tunnel, sin pasos por tenant]
    │  chat del cliente final
    ▼
-n8n `necta-tenant-chat`                [HMAC verificado en Postgres]
+n8n `abi-tenant-chat`                  [HMAC verificado en Postgres]
    ├─ abi.tenant_chat_context(slug)    ← contrato: config + KB del schema DEL tenant
    ├─ prompt armado server-side (plantilla nuestra; KB como dato delimitado)
    ├─ Gemini responde SOLO con la info del negocio
@@ -89,7 +89,7 @@ Cada cliente obtiene **de verdad**:
 - Un **rol de login propio** `t_<slug>_app` con `usage` solo sobre su schema
   (verificado: `has_schema_privilege` cruzado = `false`). Ese rol es entregable al
   cliente enterprise el día que pida acceso directo a SUS datos.
-- Un **subdominio propio** `<slug>.nectacore.com` operativo al instante.
+- Un **subdominio propio** `<slug>-abi-chat.agavesysmx.com` operativo al instante.
 - Su bot está **cerrado**: el prompt se arma server-side desde SU `bot_config`, la KB
   entra delimitada como dato, y el brain tiene prohibido salirse del negocio.
 
@@ -99,12 +99,12 @@ entrada libre en ningún punto.
 
 ## 5. Subdominios estilo Netlify
 
-- **DNS**: un solo registro wildcard `*.nectacore.com` como **CNAME proxied** al Cloudflare
+- **DNS**: un solo registro wildcard `*.agavesysmx.com` como **CNAME proxied** al Cloudflare
   Tunnel `vps-prod` (Universal SSL cubre el wildcard en el edge). Desde 2026-07-22 ya no hay
   A-record al VPS ni Traefik en el path.
 - **Tunnel**: el hostname wildcard del tunnel `vps-prod` enruta al app
   (`necta-core-web-vpsprod`, puerto local 3002). Cero acciones de infra por tenant.
-- **Next**: `src/proxy.ts` reescribe `Host: <slug>.nectacore.com` → `/t/<slug>`
+- **Next**: `src/proxy.ts` reescribe `Host: <slug>-abi-chat.agavesysmx.com` → `/t/<slug>`
   (layout aislado, sin navbar de NectaCore — el protagonista es el negocio del cliente,
   con solo el sello "creado con Abi · NectaCore").
 
@@ -123,8 +123,8 @@ Runtime (Coolify) — nombres `ABI_*`:
 `ABI_TENANT_CHAT_N8N_WEBHOOK_URL` · `ABI_FACTORY_HMAC_SECRET` · `ABI_FACTORY_MASTER_KEY` ·
 `ABI_DB_PASSWORD` · `NEXT_PUBLIC_SITE_URL` · `SITE_URL`.
 
-Vault `secrets/projects/necta.env` — ⚠️ renombrado a `NECTA_*` el 2026-07-23 (era `ABI_*`);
-Coolify **no** se tocó y sigue con los nombres de arriba. Son tiers separados a propósito
+Vault `secrets/projects/abi.env` — llaves `ABI_*` (el vaivén `ABI_*`→`NECTA_*`→`ABI_*` de
+2026-07-23/26 quedó atrás); Coolify siempre mantuvo los nombres de arriba. Son tiers separados a propósito
 (`vps-core/docs/reference/secrets.md`) — no asumas que un rename en uno propaga al otro.
 
 ## 8. Pendientes conocidos
